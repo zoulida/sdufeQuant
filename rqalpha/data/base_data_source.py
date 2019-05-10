@@ -72,6 +72,17 @@ class BaseDataSource(AbstractDataSource):
             self._non_subscribable_days = DateSet(_p('non_subscribable_days.bcolz'))
             self._non_redeemable_days = DateSet(_p('non_redeemable_days.bcolz'))
 
+    def get_merge_ticks(self, order_book_id_list, trading_date, last_dt=None):
+        """
+        获取合并的 ticks
+
+        :param list order_book_id_list: 合约名列表
+        :param datetime.date trading_date: 交易日
+        :param datetime.datetime last_dt: 仅返回 last_dt 之后的时间
+
+        :return: Iterable object of Tick
+        """
+        raise NotImplementedError
     def get_dividend(self, order_book_id, public_fund=False):
         if public_fund:
             return self._public_fund_dividends.get_dividend(order_book_id)

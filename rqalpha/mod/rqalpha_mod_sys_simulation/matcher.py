@@ -41,6 +41,7 @@ class Matcher(object):
 
     def _create_deal_price_decider(self, matching_type):
         decider_dict = {
+            MATCHING_TYPE.TICK_CURRENT_BAR: self._current_bar_tick_price_decider,
             MATCHING_TYPE.CURRENT_BAR_CLOSE: self._current_bar_close_decider,
             MATCHING_TYPE.NEXT_BAR_OPEN: self._next_bar_open_decider,
             MATCHING_TYPE.NEXT_TICK_LAST: lambda order_book_id, side: self._env.price_board.get_last_price(
@@ -52,6 +53,12 @@ class Matcher(object):
                     order_book_id))
         }
         return decider_dict[matching_type]
+
+    def _current_bar_tick_price_decider(self, order_book_id, _):
+        try:
+            return self._env.bar_dict[order_book_id].price
+        except (KeyError, TypeError):
+            return 0
 
     def _current_bar_close_decider(self, order_book_id, _):
         try:
