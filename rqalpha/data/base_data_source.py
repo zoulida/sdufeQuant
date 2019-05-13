@@ -82,7 +82,21 @@ class BaseDataSource(AbstractDataSource):
 
         :return: Iterable object of Tick
         """
-        raise NotImplementedError
+        from rqalpha.utilzld.secondsList import dateSecondRangeByDatatime
+
+        data1str = trading_date.strftime("%Y-%m-%d")
+        beginTime = "09:25:00"
+        endTime = "15:00:30"
+        dataBeginTimestr = data1str + " " + beginTime
+        dataEndTimestr = data1str + " " + endTime
+        import datetime
+        dataBeginTime = datetime.datetime.strptime(dataBeginTimestr, "%Y-%m-%d %H:%M:%S")
+        dataEndTime = datetime.datetime.strptime(dataEndTimestr, "%Y-%m-%d %H:%M:%S")
+        listTicks = dateSecondRangeByDatatime(dataBeginTime, dataEndTime)
+
+        #print(dateSecondRangeByDatatime(trading_date, trading_date))
+
+        return listTicks
     def get_dividend(self, order_book_id, public_fund=False):
         if public_fund:
             return self._public_fund_dividends.get_dividend(order_book_id)

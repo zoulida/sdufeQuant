@@ -134,7 +134,8 @@ class SimulationBroker(AbstractBroker, Persistable):
     def on_tick(self, event):
         tick = event.tick
         self._matcher.update(self._env.calendar_dt, self._env.trading_dt)
-        self._match(tick.order_book_id)
+        #self._match(tick.order_book_id)
+        self._match()
 
     def _match(self, order_book_id=None):
         open_orders = self._open_orders

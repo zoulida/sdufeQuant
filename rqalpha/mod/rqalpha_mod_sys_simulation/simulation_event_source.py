@@ -174,8 +174,8 @@ class SimulationEventSource(AbstractEventSource):
                     for tick in data_proxy.get_merge_ticks(self._get_universe(), date, last_dt):
                         # find before trading time
 
-                        calendar_dt = tick.datetime
-
+                        #calendar_dt = tick.datetime
+                        calendar_dt = tick
                         if calendar_dt < dt_before_day_trading:
                             trading_dt = calendar_dt.replace(year=date.year, month=date.month, day=date.day)
                         else:

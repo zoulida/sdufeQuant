@@ -58,6 +58,17 @@ def dateSecondRange(beginDateSecond, endDateSecond):
         time = second.strftime("%Y-%m-%d %H:%M:%S")
     return seconds
 
+
+def dateSecondRangeByDatatime(beginDateSecond, endDateSecond):
+    seconds = []
+    second = beginDateSecond
+    cursor = beginDateSecond
+    while cursor <= endDateSecond:
+        seconds.append(cursor)
+        second = second + datetime.timedelta(seconds=1)
+        cursor = second
+    return seconds
+
 # print(getNowDay())
 #
 # print(getYesterDay())
@@ -68,4 +79,4 @@ def dateSecondRange(beginDateSecond, endDateSecond):
 
 #print(dateHourRange(beginDateHour='2018-01-01 23', endDateHour='2018-01-03 00'))
 if __name__ == '__main__':
-    print(dateSecondRange(beginDateSecond='2018-01-01 23:00:00', endDateSecond='2018-01-03 00:00:00'))
+    print(dateSecondRange(beginDateSecond='2018-01-01 23:00:00', endDateSecond='2018-01-02 00:00:00'))
