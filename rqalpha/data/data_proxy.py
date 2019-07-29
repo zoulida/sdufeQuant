@@ -136,7 +136,7 @@ class DataProxy(InstrumentMixin, TradingDatesMixin):
         return self._data_source.get_settle_price(instrument, date)
 
     def get_bar(self, order_book_id, dt, frequency='1d'):
-        instrument = self.instruments(order_book_id)
+        instrument = self.instruments(order_book_id)#判断是不是指数
         bar = self._data_source.get_bar(instrument, dt, frequency)
         if bar:
             return BarObject(instrument, bar)

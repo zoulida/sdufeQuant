@@ -32,7 +32,17 @@ class Instrument(object):
     def _fix_date(ds, dflt):
         if ds == '0000-00-00':
             return dflt
-        year, month, day = ds.split('-')
+        #print(isinstance(ds, datetime.datetime))
+        if isinstance(ds, datetime.datetime):#这里更新了bundle后，出现year, month, day = ds.split('-')解析错误，原因是ds不是str，而是datetime.datetime。解决是，若datetime.datetime就直接返回。
+            return ds
+        #print(ds)
+
+
+        try:
+            year, month, day = ds.split('-')
+        except:
+            print(ds)
+
         return datetime.datetime(int(year), int(month), int(day))
 
     __repr__ = property_repr
