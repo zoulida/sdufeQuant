@@ -51,7 +51,7 @@ def handle_bar(context, bar_dict):
     logger.info(bar_dict[context.cc])
     logger.info(bar_dict[context.s1])
 
- 
+
     if not context.fired:
         # order_percent并且传入1代表买入该股票并且使其占有投资组合的100%
         order_percent(context.s1, 1)
