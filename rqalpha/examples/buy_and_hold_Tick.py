@@ -18,6 +18,22 @@ def before_trading(context):
 def handle_tick(context, tick):
     logger.info("每一个Tick执行")
     logger.info(tick)
+    DATETIME_FORMAT = '%Y-%m-%d'
+    date = tick.strftime(DATETIME_FORMAT) #获得日期
+    #print(dt)
+
+
+    import MysqlTick.Loopback.scanZToneDay3 as scanzt
+
+    listResult = scanzt.getGreaterThanList(date)
+    # listResult = getGreaterThanList(dateDay , percentage)
+    print(listResult)
+
+    '''from rqalpha.environment import Environment   #Environment有很多信息
+    DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S.%f"
+    dt = Environment.get_instance().calendar_dt.strftime(DATETIME_FORMAT)
+    print('ddddddddddddd', dt)'''
+
 
 # 你选择的证券的数据更新将会触发此段逻辑，例如日或分钟历史数据切片或者是实时数据切片更新
 def handle_bar(context, bar_dict):

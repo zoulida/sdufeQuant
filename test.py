@@ -27,8 +27,8 @@ import pandas as pd
 import numpy as np
 import coverage
 
-from rqalpha66666 import run, run_func
-from rqalpha66666.utils.logger import system_log
+from rqalpha import run, run_func
+from rqalpha.utils.logger import system_log
 
 TEST_DIR = os.path.abspath("./tests/")
 TEST_OUT = os.path.abspath("./tests/outs/")

@@ -13,8 +13,8 @@ def init():
 config = {
     "base": {
         "strategy_file": "examples/buy_and_hold_Tick.py",#""./examples/buy_and_hold.py",examples/golden_cross.py
-        "start_date": "2019-01-01",
-        "end_date": "2019-01-05",
+        "start_date": "2019-07-25",
+        "end_date": "2019-07-29",
         "frequency": "tick",
         "accounts": {
             "stock": 100000
