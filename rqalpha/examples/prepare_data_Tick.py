@@ -27,9 +27,9 @@ def handle_tick(context, tick):
     if ticktime ==  '09:25:00':
         print(ticktime)
         import MysqlTick.Loopback.scanZToneDay3 as scanzt
-        #listResult = scanzt.getGreaterThanList(date)
+        listResult = scanzt.getGreaterThanList(date)
         # listResult = getGreaterThanList(dateDay , percentage)
-        #print(listResult)
+        print(listResult)
 
     '''from rqalpha.environment import Environment   #Environment有很多信息
     DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S.%f"
@@ -51,7 +51,7 @@ def handle_bar(context, bar_dict):
     logger.info(bar_dict[context.cc])
     logger.info(bar_dict[context.s1])
 
-    # TODO: 开始编写你的算法吧！
+ 
     if not context.fired:
         # order_percent并且传入1代表买入该股票并且使其占有投资组合的100%
         order_percent(context.s1, 1)

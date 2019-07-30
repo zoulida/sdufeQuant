@@ -11,4 +11,4 @@ import os
 print( "当前工作路径",os.getcwd())
 sys.path.append("/volume/pythonworkspace")
 print(sys.path)
-import sdufeQuant.tests.utils
+import sdufeQuant.rqalpha.const
