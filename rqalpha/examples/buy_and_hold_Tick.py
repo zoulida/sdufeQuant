@@ -14,7 +14,7 @@ def init(context):
 def before_trading(context):
     pass
 
-
+#1.全仓买入第一个涨停的。2.第2天开盘价卖出
 def handle_tick(context, tick):
     logger.info("每一个Tick执行")
     logger.info(tick)
