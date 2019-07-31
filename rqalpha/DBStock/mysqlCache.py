@@ -1,4 +1,4 @@
-__author__ = 'zoulida'#注意这个文件被复制了到了DBpool中了，如果有改动，请删除后，在DBPool中修改。
+__author__ = 'zoulida' #这个是从mod里复制出来的，注意代码要同步。
 import tushare as ts
 from rqalpha.environment import Environment
 from rqalpha.utils.py2 import lru_cache

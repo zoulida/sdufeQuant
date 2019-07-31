@@ -20,11 +20,13 @@ def getGreaterThanList(dateDay, percentage = 1.07):#取得最高价大于percent
     import shelve
     name = dateDay + '_' +str(percentage)
     print(name)
-    shelveDict = shelve.open('scanZToneDay3')
+    shelveDict = shelve.open('scanZToneDay3_1')
     if name in shelveDict:
         listResult = shelveDict[name]
     else:
-        listResult = haveBeenGreaterThanbyOneDayCodelist(dateDay, percentage)
+        #listResult = haveBeenGreaterThanbyOneDayCodelist(dateDay, percentage)
+        listResult = haveBeenGreaterThanbyOneDayRemoveOpenLimitUp_Codelist(dateDay, percentage)
+
         shelveDict[name] = listResult
     shelveDict.close()
     return listResult
@@ -41,7 +43,41 @@ def addList(res_l):
             import traceback
             traceback.print_exc()
 
+def haveBeenGreaterThanbyOneDayRemoveOpenLimitUp_Codelist(dateDay ,percentage):#涨停股票，去除一字涨停
+    import santai3.tools.connectMySQL as CL
+    cursor, db = CL.getStockDataBaseCursorAndDB()
+    # start_date = None
+    start = time.time()
+    listResult = []
+    codelist = getStockList()
 
+    try:
+        start = time.time()
+        for row in codelist.itertuples(index=True, name='Pandas'):
+            code = getattr(row, "Index")
+            sqlSentence = "SELECT * FROM stockdatabase.stock_%s where 日期 =  \'%s\' and 最高价 > %s * 前收盘  and 开盘价 != round(前收盘 * 110)/100" % (
+            code, dateDay, percentage)
+            print(sqlSentence)
+
+            cursor.execute(sqlSentence)
+            results = cursor.fetchone()
+            print(results)
+            if results is not None:
+                # return True
+                # print(True)
+                listResult.append(code)
+
+        stop = time.time()
+        print('delay: %.3fs' % (stop - start))
+    except Exception as msg:
+        # print(str(msg))
+        logger.error(msg)
+    finally:
+        # 关闭游标，提交，关闭数据库连接
+        cursor.close()
+        db.commit()
+        db.close()
+    return listResult
 def haveBeenGreaterThanbyOneDayCodelist(dateDay ,percentage):
     import santai3.tools.connectMySQL as CL
     cursor, db = CL.getStockDataBaseCursorAndDB()
@@ -78,7 +114,7 @@ def haveBeenGreaterThanbyOneDayCodelist(dateDay ,percentage):
     return listResult
 
 def haveBeenGreaterThanbyOneDay(code, dateDay ,percentage):
-    import tools.connectMySQL as CL
+    import santai3.tools.connectMySQL as CL
     cursor, db = CL.getStockDataBaseCursorAndDB()
     #start_date = None
     try:

@@ -1,5 +1,5 @@
 from rqalpha.api import *
-
+import time
 
 # 在这个方法中编写任何的初始化逻辑。context对象将会在你的算法策略的任何方法之间做传递。
 def init(context):
@@ -12,24 +12,37 @@ def init(context):
 
 
 def before_trading(context):
+    logger.info('before_trading')
     pass
 
 #1.全仓买入第一个涨停的。2.第2天开盘价卖出
 def handle_tick(context, tick):
     logger.info("每一个Tick执行")
     logger.info(tick)
+
     DATETIME_FORMAT = '%Y-%m-%d'
-    date = tick.strftime(DATETIME_FORMAT) #获得日期
-    #print(dt)
+    date = tick.strftime(DATETIME_FORMAT)  # 获得日期
 
     DATETIME_FORMAT2 = '%H:%M:%S'
     ticktime = tick.strftime(DATETIME_FORMAT2)
-    if ticktime ==  '09:25:00':
+    if ticktime ==  '09:25:00':#每天这个时间要做数据准备工作
         print(ticktime)
         import MysqlTick.Loopback.scanZToneDay3 as scanzt
-        #listResult = scanzt.getGreaterThanList(date)
+
+        listResult = scanzt.getGreaterThanList(date)
         # listResult = getGreaterThanList(dateDay , percentage)
-        #print(listResult)
+        print(listResult)
+        context.hotStockList = listResult
+
+        for code in listResult:#去掉直接涨停的
+            print(code)
+
+
+
+    import rqalpha.DBStock.mysqlResult as mysqlRS
+    todayData = mysqlRS.getDayMysqlResult('600016', False, date, date)
+    #logger.info(todayData)
+    time.sleep(1)#调试时方便查看log
 
     '''from rqalpha.environment import Environment   #Environment有很多信息
     DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S.%f"
