@@ -24,9 +24,18 @@ class MyClass:
 
 @singleton
 class MysqlCache():
+    def getTickPrice(self, code, date, tick):
+        records = self.getCacheData(code, date)
+        #print(records['tick_time'] )
+        recordone = records[records['tick_time'] == tick ]
+        if recordone.empty :
+            return None
+        #print(recordone.iloc[0,5])
+        return recordone.iloc[0,5]
+        pass
 
     @lru_cache(maxsize = 16 * 1024 * 1024)
-    def getdatafromMysql(self, code, date):
+    def getdatafromMysql(self, code, date):#获取某一天的tick数据，并缓存在内存
 
         import rqalpha.DBStock.dbQueryPools as dbpool
         #df = None
@@ -38,14 +47,14 @@ class MysqlCache():
 
         return df
 
-    def getCacheData(self, code, data):
+    def getCacheData(self, code, date):
         '''enviroment = Environment.get_instance()
         startdata = enviroment.config.base.start_date
         import datetime
         startdata -= datetime.timedelta(days=365)#获取之前一年的数据，以备函数调用
         enddata = enviroment.config.base.end_date
         #print(startdata)'''
-        data = self.getdatafromMysql(code, data)
+        data = self.getdatafromMysql(code, date)
         #print(data)
         #startstr = start.strftime('%Y-%m-%d')
         #endstr = end.strftime('%Y-%m-%d')
@@ -73,9 +82,6 @@ if __name__ =='__main__':
 
     pd = tc.getCacheData('600016', '2019-05-13')
     print(pd)
-    pd1 = tc.getCacheData('600016', '2019-07-26')
-    print(pd1)
 
-
-    pd2 = tc.getCacheData('600016', '2019-07-25')
-    print(pd2)
+    price = tc.getTickPrice('600016', '2019-05-13', '09:25:05')
+    print(price)

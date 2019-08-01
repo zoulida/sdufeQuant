@@ -59,15 +59,8 @@ def haveBeenGreaterThanbyOneDayRemoveOpenLimitUp_Codelist(dateDay ,percentage):#
             code, dateDay, percentage) #这里要注意开盘价是float，比较越来有误差，因此要加round
             print(sqlSentence)
 
-            try:
-                cursor.execute(sqlSentence)
-                results = cursor.fetchone()
-            except Exception as e:
-                import traceback
-                print('traceback.print_exc():', traceback.print_exc())
-                logger.info(e)
-
-
+            cursor.execute(sqlSentence)
+            results = cursor.fetchone()
             print(results)
             if results is not None:
                 # return True

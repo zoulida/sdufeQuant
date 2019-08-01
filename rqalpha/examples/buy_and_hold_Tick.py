@@ -1,5 +1,6 @@
 from rqalpha.api import *
 import time
+import MysqlTick.Loopback.mysqlTickCache as tickCache
 
 # 在这个方法中编写任何的初始化逻辑。context对象将会在你的算法策略的任何方法之间做传递。
 def init(context):
@@ -9,7 +10,7 @@ def init(context):
     update_universe(context.s1)
     # 是否已发送了order
     context.fired = False
-
+    context.tickbase = tickCache.MysqlCache()
 
 def before_trading(context):
     logger.info('before_trading')
@@ -34,15 +35,17 @@ def handle_tick(context, tick):
         print(listResult)
         context.hotStockList = listResult
 
-        for code in listResult:#去掉直接涨停的
-            print(code)
+    for code in context.hotStockList:#
+        context.tickbase('600016', '2019-07-25')
+        pass
+        #print(code)
 
 
 
-    import rqalpha.DBStock.mysqlResult as mysqlRS
+    '''import rqalpha.DBStock.mysqlResult as mysqlRS
     todayData = mysqlRS.getDayMysqlResult('600016', False, date, date)
-    #logger.info(todayData)
-    time.sleep(1)#调试时方便查看log
+    #logger.info(todayData)'''
+    #time.sleep(1)#调试时方便查看log
 
     '''from rqalpha.environment import Environment   #Environment有很多信息
     DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S.%f"

@@ -15,5 +15,5 @@ def STlimitDown(close):
     return
 
 if __name__ == '__main__':
-    tt = limitUp(10.36)
+    tt = limitUp(18.25)
     print(tt)
