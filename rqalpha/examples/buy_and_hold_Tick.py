@@ -1,6 +1,7 @@
 from rqalpha.api import *
 import time
 import MysqlTick.Loopback.mysqlTickCache as tickCache
+import rqalpha.DBStock.mysqlResult as mysqlRS
 
 # 在这个方法中编写任何的初始化逻辑。context对象将会在你的算法策略的任何方法之间做传递。
 def init(context):
@@ -36,7 +37,22 @@ def handle_tick(context, tick):
         context.hotStockList = listResult
 
     for code in context.hotStockList:#
-        context.tickbase('600016', '2019-07-25')
+        #context.tickbase('600016', '2019-07-25')
+        price = context.tickbase.getTickPrice(code, date, ticktime)
+        if price is not None:
+            #print(price)
+            todayData = mysqlRS.getDayMysqlResult(code, False, date, date)
+            #print('tttt',todayData['lclose'].iloc[0])
+            import rqalpha.utilzld.zhangtingCalculation as ztprice
+
+            limitUpprice = ztprice.limitUp(todayData['lclose'].iloc[0])
+            print(price, limitUpprice)
+            if price == limitUpprice:
+                print(todayData)
+                print('buybuybuy!!!!!!!!!!!!!!!')
+                time.sleep(30)
+            pass
+        print(price)
         pass
         #print(code)
 

@@ -172,6 +172,8 @@ class SimulationEventSource(AbstractEventSource):
                 dt_before_day_trading = date.replace(hour=8, minute=30)
                 while True:
                     for tick in data_proxy.get_merge_ticks(self._get_universe(), date, last_dt):
+                        if tick == '2019-06-03 09:25:00':# Edit by zoulida
+                            print('coninue zzzzzzzzzzzzzzzz')
                         # find before trading time
 
                         #calendar_dt = tick.datetime

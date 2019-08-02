@@ -37,15 +37,31 @@ class MysqlCache():
     @lru_cache(maxsize = 16 * 1024 * 1024)
     def getdatafromMysql(self, code, date):#获取某一天的tick数据，并缓存在内存
 
-        import rqalpha.DBStock.dbQueryPools as dbpool
+        df = self.getdatafromshelve(code, date)
+        '''import rqalpha.DBStock.dbQueryPools as dbpool
         #df = None
         df = dbpool.queryMySQL_tick_stock_market(code, date)
         #print(df)
         #df['date'] = pd.to_datetime(df['date'])
         #df.set_index('Date', inplace=True)
-        #reslut = df[(True ^ df['close'].isin([0]))]  # 条件删除去除值为0的行
+        #reslut = df[(True ^ df['close'].isin([0]))]  # 条件删除去除值为0的行'''
 
         return df
+
+    def getdatafromshelve(self, code, date):
+        import shelve
+        name = code + '_' + str(date)
+        print(name)
+        shelveDict = shelve.open('shelve/TickData')
+        if name in shelveDict:
+            listResult = shelveDict[name]
+        else:
+            # listResult = haveBeenGreaterThanbyOneDayCodelist(dateDay, percentage)
+            import rqalpha.DBStock.dbQueryPools as dbpool
+            listResult =  dbpool.queryMySQL_tick_stock_market(code, date)
+            shelveDict[name] = listResult
+        shelveDict.close()
+        return listResult
 
     def getCacheData(self, code, date):
         '''enviroment = Environment.get_instance()
