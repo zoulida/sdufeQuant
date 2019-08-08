@@ -31,10 +31,19 @@ def handle_tick(context, tick):
         print(ticktime)
         import MysqlTick.Loopback.scanZToneDay3 as scanzt
 
+        #date 日涨停的股票
         listResult = scanzt.getGreaterThanList(date)
         # listResult = getGreaterThanList(dateDay , percentage)
         print(listResult)
         context.hotStockList = listResult
+
+        #去掉 9点25分到9点29分的tick
+        import rqalpha.utilzld.eliminateTicks as ET
+        el = ET.ELiminateTicks()
+        beginTick = date + ' ' + '09:25:01'
+        endTick = date + ' ' + '09:29:59'
+        el.addTicksbyString(beginTick, endTick)
+        return
 
     for code in context.hotStockList:#
         #context.tickbase('600016', '2019-07-25')
@@ -46,13 +55,21 @@ def handle_tick(context, tick):
             import rqalpha.utilzld.zhangtingCalculation as ztprice
 
             limitUpprice = ztprice.limitUp(todayData['lclose'].iloc[0])
-            print(price, limitUpprice)
+            #print(price, limitUpprice)
             if price == limitUpprice:
                 print(todayData)
                 print('buybuybuy!!!!!!!!!!!!!!!')
-                time.sleep(30)
+                time.sleep(3)
+
+                # 去掉当天 所有后续时间的tick
+                import rqalpha.utilzld.eliminateTicks as ET
+                el = ET.ELiminateTicks()
+                beginTick = date + ' ' + ticktime
+                endTick = date + ' ' + '15:00:30'
+                el.addTicksbyString(beginTick, endTick)
+                return
             pass
-        print(price)
+        #print(price)
         pass
         #print(code)
 

@@ -85,7 +85,7 @@ class BaseDataSource(AbstractDataSource):
         from rqalpha.utilzld.secondsList import dateSecondRangeByDatatime
 
         data1str = trading_date.strftime("%Y-%m-%d")
-        beginTime = "09:25:00"
+        beginTime = "09:25:00"#写到config
         endTime = "15:00:30"
         dataBeginTimestr = data1str + " " + beginTime
         dataEndTimestr = data1str + " " + endTime
@@ -94,7 +94,7 @@ class BaseDataSource(AbstractDataSource):
         dataEndTime = datetime.datetime.strptime(dataEndTimestr, "%Y-%m-%d %H:%M:%S")
         listTicks = dateSecondRangeByDatatime(dataBeginTime, dataEndTime)
 
-        #print(dateSecondRangeByDatatime(trading_date, trading_date))
+        #print(listTicks)
 
         return listTicks
     def get_dividend(self, order_book_id, public_fund=False):
