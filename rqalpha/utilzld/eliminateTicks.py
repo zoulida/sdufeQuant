@@ -28,7 +28,7 @@ class ELiminateTicks():
     def addTicksbyString(self, beginDateSecondstr, endDateSecondstr):
 
         beginDateSecond = datetime.datetime.strptime(beginDateSecondstr, "%Y-%m-%d %H:%M:%S")
-        endDateSecond =  datetime.datetime.strptime(endDateSecondstr, "%Y-%m-%d %H:%M:%S")
+        endDateSecond = datetime.datetime.strptime(endDateSecondstr, "%Y-%m-%d %H:%M:%S")
         self.addTicksFromBingeToEnd(beginDateSecond, endDateSecond)
 
 if __name__ == '__main__':

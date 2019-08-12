@@ -1,5 +1,6 @@
 from rqalpha.api import *
 import time
+import datetime
 import MysqlTick.Loopback.mysqlTickCache as tickCache
 import rqalpha.DBStock.mysqlResult as mysqlRS
 
@@ -13,9 +14,21 @@ def init(context):
     context.fired = False
     context.tickbase = tickCache.MysqlCache()
 
+    global timeBeginStrategy
+    timeBeginStrategy = datetime.datetime.now()
+
 def before_trading(context):
     logger.info('before_trading')
+
     pass
+
+def after_trading(context):
+    logger.info('after_trading')
+    endTimeStrategy = datetime.datetime.now()
+    strategyTime = endTimeStrategy - timeBeginStrategy
+    print('strategyTime is ', strategyTime)
+    pass
+
 
 #1.全仓买入第一个涨停的。2.第2天开盘价卖出
 def handle_tick(context, tick):
@@ -43,6 +56,12 @@ def handle_tick(context, tick):
         beginTick = date + ' ' + '09:25:01'
         endTick = date + ' ' + '09:29:59'
         el.addTicksbyString(beginTick, endTick)
+        elticks = el.getELTicks()
+        import rqalpha.utilzld.mergeTicks as MT
+        mt = MT.MergeTicks()
+        mt.munisTicks(date, elticks)
+        #print(mt.getTicksbyStrDay(date))
+
         return
 
     for code in context.hotStockList:#
@@ -59,7 +78,7 @@ def handle_tick(context, tick):
             if price == limitUpprice:
                 print(todayData)
                 print('buybuybuy!!!!!!!!!!!!!!!')
-                time.sleep(3)
+                #time.sleep(3)
 
                 # 去掉当天 所有后续时间的tick
                 import rqalpha.utilzld.eliminateTicks as ET
@@ -67,6 +86,10 @@ def handle_tick(context, tick):
                 beginTick = date + ' ' + ticktime
                 endTick = date + ' ' + '15:00:30'
                 el.addTicksbyString(beginTick, endTick)
+                import rqalpha.utilzld.mergeTicks as MT
+                mt = MT.MergeTicks()
+                elticks = el.getELTicks()
+                mt.munisTicks(date, elticks)
                 return
             pass
         #print(price)

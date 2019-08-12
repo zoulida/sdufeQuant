@@ -171,12 +171,14 @@ class SimulationEventSource(AbstractEventSource):
                 last_dt = None
                 dt_before_day_trading = date.replace(hour=8, minute=30)
                 while True:
-                    for tick in data_proxy.get_merge_ticks(self._get_universe(), date, last_dt):
+                    oneDayTicks = data_proxy.get_merge_ticks(self._get_universe(), date, last_dt)
+                    for tick in oneDayTicks:
                         #print(tick)
                         import rqalpha.utilzld.eliminateTicks as ET
                         el = ET.ELiminateTicks()
                         eliminateTicks = el.getELTicks()
                         if tick in eliminateTicks: #'2019-06-03 09:25:00':# Edit by zoulida
+                            #print(tick, datetime.datetime.now())
                             continue
                         # find before trading time
 

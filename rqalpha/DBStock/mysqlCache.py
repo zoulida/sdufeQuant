@@ -26,17 +26,40 @@ class MyClass:
 class MysqlCache():
 
     @lru_cache(None)
-    def getdatafromMysql(self, code, index, start, end):
-        startstr = start.strftime('%Y-%m-%d')
-        endstr = end.strftime('%Y-%m-%d')
+    def getdatafromMysql(self, code, index, startdate, enddate):
+        '''#startstr = start.strftime('%Y-%m-%d')
+        #endstr = end.strftime('%Y-%m-%d')
         #reslut = ts.get_k_data(code, index=index, start=startstr, end=endstr)
         import rqalpha.DBStock.dbQueryPools as dbpool
         df = dbpool.queryMySQL_plot_stock_market(code, start, end)
         df['date'] = pd.to_datetime(df['date'])
         #df.set_index('Date', inplace=True)
-        reslut = df[(True ^ df['close'].isin([0]))]  # 条件删除去除值为0的行
+        reslut = df[(True ^ df['close'].isin([0]))]  # 条件删除去除值为0的行'''
+
+        reslut = self.getdatafromshelve(code, startdate, enddate)
+
 
         return reslut
+
+    def getdatafromshelve(self, code, startdate, enddate):
+        import shelve
+        name = code + '_' + str(startdate) + '_' + str(enddate)
+        print('shelve/DayData ', name)
+        shelveDict = shelve.open('shelve/DayData')
+        if name in shelveDict:
+            listResult = shelveDict[name]
+        else:
+            import rqalpha.DBStock.dbQueryPools as dbpool
+            df = dbpool.queryMySQL_plot_stock_market(code, startdate, enddate)
+            df['date'] = pd.to_datetime(df['date'])
+            # df.set_index('Date', inplace=True)
+            listResult = df[(True ^ df['close'].isin([0]))]  # 条件删除去除值为0的行
+
+
+            shelveDict[name] = listResult
+        shelveDict.close()
+
+        return listResult
 
     def getCacheData(self, code, index, start, end):#index 是boolean。
         enviroment = Environment.get_instance()

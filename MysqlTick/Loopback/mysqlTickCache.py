@@ -51,7 +51,7 @@ class MysqlCache():
     def getdatafromshelve(self, code, date):
         import shelve
         name = code + '_' + str(date)
-        print(name)
+        print('shelve/TickData ', name)
         shelveDict = shelve.open('shelve/TickData')
         if name in shelveDict:
             listResult = shelveDict[name]
