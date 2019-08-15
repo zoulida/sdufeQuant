@@ -48,6 +48,18 @@ class MergeTicks():
         trading_date_str = trading_date.strftime("%Y-%m-%d")
         return self.getTicksbyStrDay(trading_date_str)
 
+    def deleteOneTick(self, trading_date, tick):
+        trading_date_str = trading_date.strftime("%Y-%m-%d")
+        ticks = self.getTicksbyStrDay(trading_date_str)
+        ticks.remove(tick)
+        self.daysofTick[trading_date_str] = ticks
+
+    def hasNextTick(self, trading_date):
+        ticks = self.getTicks(trading_date)
+        if len(ticks) > 0:
+            return True
+        else:
+            return False
 
 
 

@@ -87,6 +87,9 @@ class SimulationBroker(AbstractBroker, Persistable):
         self._env.event_bus.publish_event(Event(EVENT.ORDER_PENDING_NEW, account=account, order=order))
         if order.is_final():
             return
+        if self._env.config.base.frequency == 'tick' and not self._match_immediately:
+            self._delayed_orders.append((account, order))
+            return
         if self._env.config.base.frequency == '1d' and not self._match_immediately:
             self._delayed_orders.append((account, order))
             return

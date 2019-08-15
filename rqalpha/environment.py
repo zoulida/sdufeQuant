@@ -54,6 +54,9 @@ class Environment(object):
         self._position_model_dict = {}
         self._transaction_cost_decider_dict = {}
 
+        import MysqlTick.Loopback.mysqlTickCache as tickCache
+        self.tickbase = tickCache.MysqlCache()
+
     @classmethod
     def get_instance(cls):
         """
@@ -156,7 +159,9 @@ class Environment(object):
         return self.bar_dict[order_book_id]
 
     def get_last_price(self, order_book_id):
-        return float(self.price_board.get_last_price(order_book_id))
+        #return float(self.price_board.get_last_price(order_book_id))
+        #print(order_book_id)
+        return float(self.tickbase.getLastTickPriceByDateTime(order_book_id, self.calendar_dt))#zoulida
 
     def get_instrument(self, order_book_id):
         return self.data_proxy.instruments(order_book_id)

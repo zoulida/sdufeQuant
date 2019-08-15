@@ -208,3 +208,4 @@ def plot_result(result_dict, show_windows=True, savefile=None):
 
     if show_windows:
         plt.show()
+    pass

@@ -1,8 +1,9 @@
 __author__ = 'zoulida'
-import tushare as ts
+#import tushare as ts
 from rqalpha.environment import Environment
 from rqalpha.utils.py2 import lru_cache
 import pandas as pd
+import datetime
 
 def singleton(cls):
     instances = {}
@@ -24,6 +25,27 @@ class MyClass:
 
 @singleton
 class MysqlCache():
+
+    def getLastTickPriceByDateTime(self, rqcode, calendar_dt):
+        date = calendar_dt.strftime("%Y-%m-%d")
+        str_tick = calendar_dt.strftime("%H:%M:%S")
+        import rqalpha.utilzld.zhengzeString as zz
+        code = zz.getCode(rqcode)
+        return self.getLastTickPrice(code, date, str_tick)
+
+
+    def getLastTickPrice(self, code, date, str_tick):
+        price = self.getTickPrice(code, date, str_tick)
+        while price is None:
+            ticktime = datetime.datetime.strptime(str_tick, "%H:%M:%S")#时间倒退前进一秒,zoulida
+            time_offset = ticktime - datetime.timedelta(seconds=1)
+            str_tick =  time_offset.strftime("%H:%M:%S")
+            price = self.getTickPrice(code, date, str_tick)
+            if str_tick == "09:00:00":
+                return None
+            #print(str_tick)
+        return price
+
     def getTickPrice(self, code, date, tick):
         records = self.getCacheData(code, date)
         #print(records['tick_time'] )
@@ -52,7 +74,16 @@ class MysqlCache():
         import shelve
         name = code + '_' + str(date)
         print('shelve/TickData ', name)
-        shelveDict = shelve.open('shelve/TickData')
+
+
+        try:
+            shelveDict = shelve.open('shelve/TickData')
+        except Exception as e:
+            print('出错，没有文件shelve/TickData。现在立即新建，并重复执行')
+            import os
+            os.makedirs('shelve')
+            shelveDict = shelve.open('shelve/TickData')
+
         if name in shelveDict:
             listResult = shelveDict[name]
         else:
@@ -80,10 +111,13 @@ class MysqlCache():
         return data
 
 if __name__ =='__main__':
+
     # c1 = MyClass()
     # c2 = MyClass()
     # print(c1 == c2) # True
     tc = MysqlCache()
+    price = tc.getLastTickPrice('600016', '2019-06-06', '15:00:00')
+    print(price)
     '''tc.getCacheData('000300', True, start ='2018-03-13', end = '2018-05-13')
     tc.getdatafromMysql('000300', True, start ='2018-03-13', end ='2018-05-13')
 
@@ -101,3 +135,9 @@ if __name__ =='__main__':
 
     price = tc.getTickPrice('600016', '2019-05-13', '09:25:05')
     print(price)
+
+'''if __name__ == '__main__':
+    ticktime = datetime.datetime.strptime('15:00:00', "%H:%M:%S")
+    print(ticktime)
+    #mtc = MysqlCache()
+    #mtc.getLastTickPrice('600016', '2019-06-06', '15:00:00')'''

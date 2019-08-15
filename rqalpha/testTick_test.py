@@ -8,13 +8,13 @@ def init():
     #strategy_file_path = context.config.base.strategy_file
     print(sys.path)
     print('/volume/pythonworkspace/rqalpha/rqalpha/examples')
-    sys.path.append('/volume/pythonworkspace/rqalpha/rqalpha/examples')
+    sys.path.append('/volume/pythonworkspace/sdufeQuant/rqalpha/examples')
 
 config = {
     "base": {
-        "strategy_file": "rqalpha/examples/buy_and_hold_Tick.py",#"examples/buy_and_hold_Tick.py"""./examples/buy_and_hold.py",examples/golden_cross.py
+        "strategy_file": "rqalpha/examples/buy_and_hold_Tick_test.py",#"examples/buy_and_hold_Tick.py"""./examples/buy_and_hold.py",examples/golden_cross.py
         "start_date": "2019-06-03",
-        "end_date": "2019-06-04",
+        "end_date": "2019-06-06",
         "frequency": "tick",
         "accounts": {
             "stock": 100000
@@ -50,5 +50,5 @@ config = {
 
     }
 }
-#init()
+init()
 run(config)

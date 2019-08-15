@@ -171,15 +171,26 @@ class SimulationEventSource(AbstractEventSource):
                 last_dt = None
                 dt_before_day_trading = date.replace(hour=8, minute=30)
                 while True:
-                    oneDayTicks = data_proxy.get_merge_ticks(self._get_universe(), date, last_dt)
-                    for tick in oneDayTicks:
-                        #print(tick)
-                        import rqalpha.utilzld.eliminateTicks as ET
+                    #oneDayTicks = data_proxy.get_merge_ticks(self._get_universe(), date, last_dt)
+                    import rqalpha.utilzld.mergeTicks as MT
+                    mt = MT.MergeTicks()
+                    #global oneDayTicks
+                    #oneDayTicks = mt.getTicks(date)
+                    while mt.hasNextTick(date):
+                        #oneDayTicks = mt.getTicks(date)
+                        tick = mt.getTicks(date)[0]
+                        print(tick)
+                        mt.deleteOneTick(date, tick)
+
+                    #for tick in oneDayTicks:
+                    #    print(tick)
+                    #    oneDayTicks = mt.getTicks(date)
+                        '''import rqalpha.utilzld.eliminateTicks as ET
                         el = ET.ELiminateTicks()
                         eliminateTicks = el.getELTicks()
                         if tick in eliminateTicks: #'2019-06-03 09:25:00':# Edit by zoulida
                             #print(tick, datetime.datetime.now())
-                            continue
+                            continue'''
                         # find before trading time
 
                         #calendar_dt = tick.datetime
@@ -198,11 +209,11 @@ class SimulationEventSource(AbstractEventSource):
                                 trading_dt=trading_dt - datetime.timedelta(minutes=30)
                             )
 
-                        if self._universe_changed:
-                            self._universe_changed = False
-                            break
+                        #if self._universe_changed:
+                        #    self._universe_changed = False
+                        #    break
 
-                        last_dt = calendar_dt
+                        #last_dt = calendar_dt
                         yield Event(EVENT.TICK, calendar_dt=calendar_dt, trading_dt=trading_dt, tick=tick)
 
                     else:
