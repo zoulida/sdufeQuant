@@ -41,6 +41,7 @@ class Environment(object):
         self.user_log = user_log
         self.user_detail_log = user_detail_log
         self.event_bus = EventBus()
+        #self.portfolio = None
         self.portfolio = None
         self.booking = None
         self.benchmark_portfolio = None
@@ -159,9 +160,11 @@ class Environment(object):
         return self.bar_dict[order_book_id]
 
     def get_last_price(self, order_book_id):
-        #return float(self.price_board.get_last_price(order_book_id))
+        if self._env.config.base.frequency == '1d':
+            return float(self.price_board.get_last_price(order_book_id))
         #print(order_book_id)
-        return float(self.tickbase.getLastTickPriceByDateTime(order_book_id, self.calendar_dt))#zoulida
+        if self._env.config.base.frequency == 'tick':
+            return float(self.tickbase.getLastTickPriceByDateTime(order_book_id, self.calendar_dt))#zoulida
 
     def get_instrument(self, order_book_id):
         return self.data_proxy.instruments(order_book_id)

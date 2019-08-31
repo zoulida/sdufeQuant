@@ -203,6 +203,7 @@ class Portfolio(object):
         """
         [float] 市值
         """
+        #print('fffffffffffffff  ', 'market_value')
         return sum(account.market_value for account in six.itervalues(self._accounts))
 
     @property

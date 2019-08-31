@@ -1,3 +1,5 @@
+__author__ = 'zoulida'
+
 # -*- coding: utf-8 -*-
 #
 # Copyright 2017 Ricequant, Inc
@@ -27,7 +29,7 @@ import MysqlTick.Loopback.mysqlTickCache as tickCache
 from .slippage import SlippageDecider
 
 
-class Matcher(object):
+class Matcher_Tick(object):
     def __init__(self, env, mod_config):
         self._slippage_decider = SlippageDecider(mod_config.slippage_model, mod_config.slippage)
         self._turnover = defaultdict(int)

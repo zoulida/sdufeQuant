@@ -23,6 +23,8 @@ from rqalpha.const import MATCHING_TYPE, ORDER_STATUS
 from rqalpha.model.order import Order
 
 from .matcher import Matcher
+from .matcher_tick import Matcher_Tick
+
 from .utils import init_portfolio
 from .booking import SimulationBooking
 
@@ -32,7 +34,10 @@ class SimulationBroker(AbstractBroker, Persistable):
         self._env = env
         self._mod_config = mod_config
 
-        self._matcher = Matcher(env, mod_config)
+        if self._env.config.base.frequency == "tick":
+            self._matcher = Matcher_Tick(env, mod_config)
+        else:
+            self._matcher = Matcher(env, mod_config)
         self._match_immediately = mod_config.matching_type == MATCHING_TYPE.CURRENT_BAR_CLOSE
 
         self._open_orders = []
@@ -87,9 +92,9 @@ class SimulationBroker(AbstractBroker, Persistable):
         self._env.event_bus.publish_event(Event(EVENT.ORDER_PENDING_NEW, account=account, order=order))
         if order.is_final():
             return
-        if self._env.config.base.frequency == 'tick' and not self._match_immediately:
+        '''if self._env.config.base.frequency == 'tick' and not self._match_immediately: #zoulida
             self._delayed_orders.append((account, order))
-            return
+            return'''
         if self._env.config.base.frequency == '1d' and not self._match_immediately:
             self._delayed_orders.append((account, order))
             return

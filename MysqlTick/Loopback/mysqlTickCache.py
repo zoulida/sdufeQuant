@@ -26,6 +26,14 @@ class MyClass:
 @singleton
 class MysqlCache():
 
+    def getLastTickPriceByEnvironment(self, rqcode):
+        calendar_dt = Environment._env.calendar_dt
+        date = calendar_dt.strftime("%Y-%m-%d")
+        str_tick = calendar_dt.strftime("%H:%M:%S")
+        import rqalpha.utilzld.zhengzeString as zz
+        code = zz.getCode(rqcode)
+        return self.getLastTickPrice(code, date, str_tick)
+
     def getLastTickPriceByDateTime(self, rqcode, calendar_dt):
         date = calendar_dt.strftime("%Y-%m-%d")
         str_tick = calendar_dt.strftime("%H:%M:%S")

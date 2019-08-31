@@ -58,6 +58,7 @@ class AnalyserMod(AbstractMod):
 
     def _collect_trade(self, event):
         self._trades.append(self._to_trade_record(event.trade))
+        pass
 
     def _collect_order(self, event):
         self._orders.append(event.order)
