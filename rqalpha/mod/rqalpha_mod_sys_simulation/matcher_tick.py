@@ -176,7 +176,8 @@ class Matcher_Tick(object):
                 fill = order.unfilled_quantity
 
             ct_amount = account.positions.get_or_create(order.order_book_id).cal_close_today_amount(fill, order.side)
-            price = self._slippage_decider.get_trade_price(order, deal_price)
+            #price = self._slippage_decider.get_trade_price(order, deal_price)
+            price = deal_price
 
             trade = Trade.__from_create__(
                 order_id=order.order_id,

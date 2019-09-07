@@ -14,7 +14,7 @@ config = {
     "base": {
         "strategy_file": "rqalpha/examples/buy_and_hold_Tick_test.py",#"examples/buy_and_hold_Tick.py"""./examples/buy_and_hold.py",examples/golden_cross.py
         "start_date": "2019-06-03",
-        "end_date": "2019-07-29",
+        "end_date": "2019-06-18",
         "frequency": "tick",
         "accounts": {
             "stock": 100000
