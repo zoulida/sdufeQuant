@@ -63,6 +63,32 @@ class AnalyserMod(AbstractMod):
     def _collect_order(self, event):
         self._orders.append(event.order)
 
+    def _collect_daily666666666666666666666666bak(self, event):
+        date = self._env.calendar_dt.date()
+        portfolio = self._env.portfolio
+        #print(portfolio)
+        #benchmark_portfolio = self._env.benchmark_portfolio
+
+        self._portfolio_daily_returns.append(portfolio.daily_returns)
+        self._total_portfolios.append(self._to_portfolio_record(date, portfolio))
+
+        #if benchmark_portfolio is None:
+        #    self._benchmark_daily_returns.append(0)
+        #else:
+        #    self._benchmark_daily_returns.append(benchmark_portfolio.daily_returns)
+        #    self._total_benchmark_portfolios.append(self._to_portfolio_record(date, benchmark_portfolio))
+
+        # for account_type, account in six.iteritems(self._env.portfolio.accounts):
+        #     self._sub_accounts[account_type].append(self._to_account_record(date, account))
+        #     for order_book_id, position in six.iteritems(account.positions):
+        #         self._positions[account_type].append(self._to_position_record(date, order_book_id, position))
+        import rqalpha.mod.rqalpha_mod_sys_accounts.account_model.stock_account as stock_account
+        account = stock_account.StockAccount()
+        account_type = "STOCk"
+        self._sub_accounts[account_type].append(self._to_account_record(date, account))
+        for order_book_id, position in six.iteritems(account.positions):
+            self._positions[account_type].append(self._to_position_record(date, order_book_id, position))
+
     def _collect_daily(self, event):
         date = self._env.calendar_dt.date()
         portfolio = self._env.portfolio

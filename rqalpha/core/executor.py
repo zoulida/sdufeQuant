@@ -106,7 +106,7 @@ class Executor(object):
                 event_bus.publish_event(PRE_AFTER_TRADING)
                 event_bus.publish_event(event)
                 event_bus.publish_event(POST_AFTER_TRADING)
-                print('why stop so much time')
+                #print('why stop so much time')
 
             else:
                 event_bus.publish_event(event)

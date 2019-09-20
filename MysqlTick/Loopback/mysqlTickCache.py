@@ -43,14 +43,37 @@ class MysqlCache():
 
 
     def getLastTickPrice(self, code, date, str_tick):
+        start_tick = datetime.datetime.strptime('9:20:00', "%H:%M:%S")
+        end_tick = datetime.datetime.strptime('15:00:10', "%H:%M:%S")
+        close_tick = datetime.datetime.strptime('15:00:06', "%H:%M:%S")
+        ticktime = datetime.datetime.strptime(str_tick, "%H:%M:%S")
+        if ticktime <= start_tick or ticktime >= end_tick:  #
+            ticktime = close_tick
+            str_tick = ticktime.strftime("%H:%M:%S")
+
+        tail_start_tick = datetime.datetime.strptime('14:57:00', "%H:%M:%S")
+        tail_end_tick = datetime.datetime.strptime('15:00:00', "%H:%M:%S")
+        tail_close_tick = datetime.datetime.strptime('14:57:00', "%H:%M:%S")
+
+        if ticktime >= tail_start_tick or ticktime <= tail_end_tick:  #
+            ticktime = tail_close_tick
+            str_tick = ticktime.strftime("%H:%M:%S")
         price = self.getTickPrice(code, date, str_tick)
+
+
+
+
+        count = 20
         while price is None:
-            ticktime = datetime.datetime.strptime(str_tick, "%H:%M:%S")#时间倒退前进一秒,zoulida
-            time_offset = ticktime - datetime.timedelta(seconds=1)
-            str_tick =  time_offset.strftime("%H:%M:%S")
-            price = self.getTickPrice(code, date, str_tick)
-            if str_tick == "09:00:00":
+            if count == 0: #控制循环次数
                 return None
+            count = count - 1
+
+            ticktime = ticktime - datetime.timedelta(seconds=1)#时间倒退前进一秒,zoulida
+
+            str_tick =  ticktime.strftime("%H:%M:%S")
+            price = self.getTickPrice(code, date, str_tick)
+
             #print(str_tick)
         return price
 
