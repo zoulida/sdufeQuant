@@ -46,15 +46,18 @@ class BenchmarkAccount(StockAccount):
             self._total_cash -= quantity * price
 
     def _on_tick(self, event):
-        self._total_cash = 1000
-        # run once
-        # if len(self._positions) == 0:
-        #     tick = event.tick
-        #     if tick.order_book_id != self.benchmark:
-        #         return
-        #     price = tick.last
-        #     position = self._positions.get_or_create(self.benchmark)
-        #     quantity = self._total_cash / price
-        #     position._quantity = quantity
-        #     position._avg_price = price
-        #     self._total_cash -= quantity * price
+        #self._total_cash = 1000
+        #run once
+        if len(self._positions) == 0:
+            tick = event.tick
+            #if tick.order_book_id != self.benchmark:
+            #    return
+            #price = tick.last
+            import MysqlTick.Loopback.mysqlTickCache as tickCache
+            tickbase = tickCache.MysqlCache()
+            price = tickbase.getLastTickPriceByEnvironment(self.benchmark)
+            position = self._positions.get_or_create(self.benchmark)
+            quantity = self._total_cash / price
+            position._quantity = quantity
+            position._avg_price = price
+            self._total_cash -= quantity * price

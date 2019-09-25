@@ -50,6 +50,7 @@ def handle_tick(context, tick):
         print(listResult)
         context.hotStockList = listResult
 
+
         #去掉 9点25分到9点29分的tick
         import rqalpha.utilzld.eliminateTicks as ET
         el = ET.ELiminateTicks()
@@ -63,6 +64,19 @@ def handle_tick(context, tick):
         #print(mt.getTicksbyStrDay(date))
 
         return
+
+    #先卖后买
+
+    #print(context.portfolio.positions)
+    if context.portfolio.positions.__len__() > 0:
+        print('持有股票，立即清盘！！！   ')
+        codeSell = context.portfolio.positions[0]
+        priceSell = context.tickbase.getTickPrice(codeSell, date, ticktime)
+        if priceSell is not None:
+            logger.info("进行清仓")
+            order_target_value(codeSell, 0)
+        else:
+            return #清仓前，没有资金了，无法购买，直接返回。
 
     for code in context.hotStockList:#
         #context.tickbase('600016', '2019-07-25')
@@ -78,35 +92,32 @@ def handle_tick(context, tick):
             if price == limitUpprice:
                 print(todayData)
                 print('buybuybuy!!!!!!!!!!!!!!!')
+
+                #order_percent(code, 1)
+
                 #time.sleep(3)
 
-                # 去掉当天 所有后续时间的tick
-                import rqalpha.utilzld.eliminateTicks as ET
-                el = ET.ELiminateTicks()
-                beginTick = date + ' ' + ticktime
-                endTick = date + ' ' + '15:00:30'
-                el.addTicksbyString(beginTick, endTick)
-                import rqalpha.utilzld.mergeTicks as MT
-                mt = MT.MergeTicks()
-                elticks = el.getELTicks()
-                mt.munisTicks(date, elticks)
+
+                eliminteTicks(date, ticktime) ## 去掉当天 所有后续时间的tick
+
+
                 return
-            pass
-        #print(price)
-        pass
-        #print(code)
 
 
 
-    '''import rqalpha.DBStock.mysqlResult as mysqlRS
-    todayData = mysqlRS.getDayMysqlResult('600016', False, date, date)
-    #logger.info(todayData)'''
-    #time.sleep(1)#调试时方便查看log
+def eliminteTicks(date, ticktime):
+    # 去掉当天 所有后续时间的tick
+    import rqalpha.utilzld.eliminateTicks as ET
+    el = ET.ELiminateTicks()
+    beginTick = date + ' ' + ticktime
+    endTick = date + ' ' + '15:00:30'
+    el.addTicksbyString(beginTick, endTick)
+    import rqalpha.utilzld.mergeTicks as MT
+    mt = MT.MergeTicks()
+    elticks = el.getELTicks()
+    mt.munisTicks(date, elticks)
 
-    '''from rqalpha.environment import Environment   #Environment有很多信息
-    DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S.%f"
-    dt = Environment.get_instance().calendar_dt.strftime(DATETIME_FORMAT)
-    print('ddddddddddddd', dt)'''
+
 
 
 # 你选择的证券的数据更新将会触发此段逻辑，例如日或分钟历史数据切片或者是实时数据切片更新

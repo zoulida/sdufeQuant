@@ -12,14 +12,14 @@ def init():
 
 config = {
     "base": {
-        "strategy_file": "rqalpha/examples/buy_and_hold_Tick.py",#"examples/buy_and_hold_Tick.py"""./examples/buy_and_hold.py",examples/golden_cross.py
+        "strategy_file": "./examples/buy_and_hold_Tick.py",#"examples/buy_and_hold_Tick.py"""./examples/buy_and_hold.py",examples/golden_cross.py
         "start_date": "2019-06-03",
-        "end_date": "2019-06-04",
+        "end_date": "2019-07-04",
         "frequency": "tick",
         "accounts": {
             "stock": 100000
         },
-        "benchmark":"000300.XSHG"
+        "benchmark":"000001.XSHG"
 
     },
     "mod": {

@@ -43,6 +43,7 @@ def handle_bar(context, bar_dict):
     plot("short avg", short_avg[-1])
     plot("long avg", long_avg[-1])
 
+    #print(context.portfolio.positions)
     # 计算现在portfolio中股票的仓位
     cur_position = context.portfolio.positions[context.s1].quantity
     # 计算现在portfolio中的现金可以购买多少股票
