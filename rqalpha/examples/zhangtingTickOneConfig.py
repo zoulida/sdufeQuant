@@ -14,7 +14,7 @@ config = {
     "base": {
         "strategy_file": "zhangtingTickOneStrategy.py",#"examples/buy_and_hold_Tick.py"""./examples/buy_and_hold.py",examples/golden_cross.py
         "start_date": "2019-06-03",
-        "end_date": "2019-07-04",
+        "end_date": "2019-06-04",
         "frequency": "tick",
         "accounts": {
             "stock": 100000

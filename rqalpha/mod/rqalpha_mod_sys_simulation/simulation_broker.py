@@ -29,7 +29,7 @@ from .utils import init_portfolio
 from .booking import SimulationBooking
 
 
-class SimulationBroker(AbstractBroker, Persistable):
+class SimulationBroker(AbstractBroker, Persistable): #这个类是总的订单交易类，每个tick会检查open-order，然后去_matcher方法确认是否能正常交易。
     def __init__(self, env, mod_config):
         self._env = env
         self._mod_config = mod_config

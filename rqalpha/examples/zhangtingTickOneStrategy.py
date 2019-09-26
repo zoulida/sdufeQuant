@@ -4,6 +4,9 @@ import datetime
 import MysqlTick.Loopback.mysqlTickCache as tickCache
 import rqalpha.DBStock.mysqlResult as mysqlRS
 
+import rqalpha.utilzld.codeStrChange as codeStrChange
+codeChange = codeStrChange.CodeChange()
+
 # 在这个方法中编写任何的初始化逻辑。context对象将会在你的算法策略的任何方法之间做传递。
 def init(context):
     logger.info("init")
@@ -66,7 +69,6 @@ def handle_tick(context, tick):
         return
 
     #先卖后买
-
     #print(context.portfolio.positions)
     if context.portfolio.positions.__len__() > 0:
         print('持有股票，立即清盘！！！   ')
@@ -93,12 +95,13 @@ def handle_tick(context, tick):
                 print(todayData)
                 print('buybuybuy!!!!!!!!!!!!!!!')
 
-                #order_percent(code, 1)
+                order_percent(codeChange.getRiceCode(code), 1)
 
                 #time.sleep(3)
 
 
                 eliminteTicks(date, ticktime) ## 去掉当天 所有后续时间的tick
+                #eliminteTicks(date, ticktime)
 
 
                 return
