@@ -200,7 +200,7 @@ msgstr "触发强制平仓，当前总权益为 {}。"
 #: rqalpha/mod/rqalpha_mod_sys_accounts/api/api_future.py:59
 #: rqalpha/mod/rqalpha_mod_sys_accounts/api/api_stock.py:96
 msgid "Order Creation Failed: Order amount is 0."
-msgstr "订单创建失败: 下单量为 0"
+msgstr "zoulida订单创建失败: 下单量为 0"
 
 #: rqalpha/mod/rqalpha_mod_sys_accounts/api/api_future.py:62
 #: rqalpha/mod/rqalpha_mod_sys_accounts/api/api_stock.py:101

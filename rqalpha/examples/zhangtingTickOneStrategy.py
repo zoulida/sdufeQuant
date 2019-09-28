@@ -3,6 +3,7 @@ import time
 import datetime
 import MysqlTick.Loopback.mysqlTickCache as tickCache
 import rqalpha.DBStock.mysqlResult as mysqlRS
+from rqalpha.const import DEFAULT_ACCOUNT_TYPE
 
 import rqalpha.utilzld.codeStrChange as codeStrChange
 codeChange = codeStrChange.CodeChange()
@@ -12,6 +13,7 @@ def init(context):
     logger.info("init")
     context.s1 = "600519.XSHG"
     context.cc = "600016.XSHG"
+    context.todayBuy = {}#逻辑是当天买入的股票，不管是否有以前的仓位，一律不准卖出。
     update_universe(context.s1)
     # 是否已发送了order
     context.fired = False
@@ -22,6 +24,7 @@ def init(context):
 
 def before_trading(context):
     logger.info('before_trading everyday')
+    context.todayBuy = {}
 
     pass
 
@@ -57,7 +60,7 @@ def handle_tick(context, tick):
         #去掉 9点25分到9点29分的tick
         import rqalpha.utilzld.eliminateTicks as ET
         el = ET.ELiminateTicks()
-        beginTick = date + ' ' + '09:25:01'
+        beginTick = date + ' ' + '09:25:00'
         endTick = date + ' ' + '09:29:59'
         el.addTicksbyString(beginTick, endTick)
         elticks = el.getELTicks()
@@ -71,14 +74,30 @@ def handle_tick(context, tick):
     #先卖后买
     #print(context.portfolio.positions)
     if context.portfolio.positions.__len__() > 0:
-        print('持有股票，立即清盘！！！   ')
-        codeSell = context.portfolio.positions[0]
-        priceSell = context.tickbase.getTickPrice(codeSell, date, ticktime)
-        if priceSell is not None:
-            logger.info("进行清仓")
-            order_target_value(codeSell, 0)
-        else:
-            return #清仓前，没有资金了，无法购买，直接返回。
+        codeSell = context.portfolio.positions.keys()[0]#这里逻辑是只有一只股票，若是有多只则要遍历
+        account = context.portfolio.accounts[DEFAULT_ACCOUNT_TYPE.STOCK.name]
+        position = account.positions[codeSell]
+        sellable = position.sellable
+        if sellable > 0:
+            print('检测到持有非冻结股票，立即清盘！！！   ')
+            if ticktime >= '09:30:00':
+                logger.info("进行清仓")
+                order_target_value(codeSell, 0)
+                return  # 当前tick不能卖，所以也没有cash买了。返回吧
+            else:
+                print('只能在9：30：00以后清盘')
+                return  # 清仓前，没有资金了，无法购买，直接返回。'''
+        '''if codeSell not in context.todayBuy and sellable > 0:
+            print('持有股票，立即清盘！！！   ')
+            
+            priceSell = context.tickbase.getTickPrice(codeChange.getNCode(codeSell), date, ticktime)
+            if priceSell is not None:
+                logger.info("进行清仓")
+                order_target_value(codeSell, 0)
+                return #当前tick不能卖，所以也没有cash买了。返回吧
+            else:
+                print('没有报价，无法清盘') #没有报价，要去数库主动查找。
+                return #清仓前，没有资金了，无法购买，直接返回。'''
 
     for code in context.hotStockList:#
         #context.tickbase('600016', '2019-07-25')
@@ -95,7 +114,10 @@ def handle_tick(context, tick):
                 print(todayData)
                 print('buybuybuy!!!!!!!!!!!!!!!')
 
-                order_percent(codeChange.getRiceCode(code), 1)
+                riceCode = codeChange.getRiceCode(code)
+                order_percent(riceCode, 1)
+                context.todayBuy[riceCode] = 0
+
 
                 #time.sleep(3)
 

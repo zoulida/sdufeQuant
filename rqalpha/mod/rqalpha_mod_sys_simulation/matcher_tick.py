@@ -90,7 +90,7 @@ class Matcher_Tick(object):
         self._calendar_dt = calendar_dt
         self._trading_dt = trading_dt
 
-    def match(self, open_orders):
+    def match(self, open_orders):#每个handle_tick之前都要调用，看看有没有未完成的订单
         price_board = self._env.price_board
         for account, order in open_orders:
             order_book_id = order.order_book_id

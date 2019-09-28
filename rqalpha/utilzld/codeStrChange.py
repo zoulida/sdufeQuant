@@ -20,6 +20,8 @@ class CodeChange():
             return code + '.XSHG'
         else:
             return code + '.XSHE'
+    def getNCode(self, RiceCode):
+        return RiceCode[:6]
 
 
 if __name__ == '__main__':

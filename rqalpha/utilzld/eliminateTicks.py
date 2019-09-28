@@ -29,6 +29,7 @@ class ELiminateTicks():
 
         beginDateSecond = datetime.datetime.strptime(beginDateSecondstr, "%Y-%m-%d %H:%M:%S")
         endDateSecond = datetime.datetime.strptime(endDateSecondstr, "%Y-%m-%d %H:%M:%S")
+        beginDateSecond = beginDateSecond + datetime.timedelta(seconds=2)#zoulida 增加一秒处理订单
         self.addTicksFromBingeToEnd(beginDateSecond, endDateSecond)
 
 if __name__ == '__main__':
