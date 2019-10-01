@@ -22,6 +22,10 @@ class CustomEnum(Enum):
         return "%s.%s" % (
             self.__class__.__name__, self._name_)
 
+# noinspection PyPep8Naming
+class FILEPATH(CustomEnum):
+    SHELVEDIR = "/volume/shelve/"
+
 
 # noinspection PyPep8Naming
 class EXECUTION_PHASE(CustomEnum):

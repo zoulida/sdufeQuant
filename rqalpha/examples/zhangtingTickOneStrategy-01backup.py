@@ -100,24 +100,9 @@ def handle_tick(context, tick):
                 print('没有报价，无法清盘') #没有报价，要去数库主动查找。
                 return #清仓前，没有资金了，无法购买，直接返回。'''
 
-    if ticktime < '09:30:00':  # 小于这个时间不购买，直接返回
+    if context.todayFired == True:
         return
-
-    if context.todayFired == True:#已经买过一次了，没子弹了
-        return
-
-    listZhongting = context.tickbase.getZhangtingStockListbytick_Shelve(tick)
-    print('ZhangtingList ', listZhongting)
-
-    for code in listZhongting:
-        print('submit order to buy zhangtingStock, its code is ', code)
-        riceCode = codeChange.getRiceCode(code)
-        order_percent(riceCode, 1)
-        context.todayFired = True
-        eliminteTicks(date, ticktime)  ## 去掉当天 所有后续时间的tick
-        return
-
-    '''for code in context.hotStockList:#
+    for code in context.hotStockList:#
         #context.tickbase('600016', '2019-07-25')
         price = context.tickbase.getTickPrice(code, date, ticktime)
         if price is not None:#并不是每个股票每个tick秒都有数据
@@ -145,7 +130,7 @@ def handle_tick(context, tick):
                 #eliminteTicks(date, ticktime)
 
 
-                return'''
+                return
 
 
 

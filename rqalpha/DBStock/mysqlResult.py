@@ -1,11 +1,12 @@
 __author__ = 'zoulida'
+from rqalpha.utils.py2 import lru_cache
 
-
-def getDayMysqlResult(code, index, start, end):
+@lru_cache(1024 * 1024 * 16)
+def getDayMysqlResult(code, indexboolean, start, end):
     # return ts.get_k_data(code, index=index, start=start, end=end)
     from .mysqlCache import MysqlCache
     tc = MysqlCache()
-    result = tc.getCacheData(code, index, start, end)
+    result = tc.getCacheData(code, indexboolean, start, end)
     return result
 
 if __name__ == '__main__':

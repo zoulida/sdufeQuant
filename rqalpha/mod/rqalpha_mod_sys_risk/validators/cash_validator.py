@@ -32,6 +32,10 @@ class CashValidator(AbstractFrontendValidator):
         cost_money = frozen_value + self._env.get_order_transaction_cost(DEFAULT_ACCOUNT_TYPE.STOCK, order)
         if cost_money <= account.cash:
             return True
+        from rqalpha.const import ORDER_TYPE
+        if order.type == ORDER_TYPE.MARKET: # 按照市场价购入出现手续费过高，cash不够了，不能按原有订单量下单，需减少订单量。
+            order._quantity = int(order.quantity/10000*90) * 100 # 下单量变为90%
+            return True
 
         user_system_log.warn(
             _("Order Creation Failed: not enough money to buy {order_book_id}, needs {cost_money:.2f}, "

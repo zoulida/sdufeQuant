@@ -5,6 +5,7 @@ __author__ = 'zoulida'
 
 from santai3.tools.tusharePro import getPro
 from santai3.tools.LogTools import Logger
+from rqalpha.utils.py2 import lru_cache
 import time
 logger = Logger(logName='log.txt', logLevel="DEBUG", logger="santai3").getlog()
 #from tools.connectMySQL import getStockDataBaseCursorAndDB
@@ -15,12 +16,17 @@ def getZTList(codelist, dateDay):
     listA = []
     #if haveBeenGreaterThanbyOneDay(codelist, dateDay):
     #    listA.append(code)
+
+@lru_cache(maxsize=16 * 1024 * 1024)
 def getGreaterThanList(dateDay, percentage = 1.07):#取得最高价大于percentage的list
 
     import shelve
     name = dateDay + '_' +str(percentage)
-    print(name)
-    shelveDict = shelve.open('shelve/scanZToneDay3')
+    #print(name)
+    from rqalpha.const import FILEPATH
+    dirstr = FILEPATH.SHELVEDIR.value
+    filepath = dirstr + 'scanZToneDay3'
+    shelveDict = shelve.open(filepath)
     if name in shelveDict:
         listResult = shelveDict[name]
     else:

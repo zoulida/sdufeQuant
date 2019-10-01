@@ -4,6 +4,9 @@ from rqalpha.environment import Environment
 from rqalpha.utils.py2 import lru_cache
 import pandas as pd
 import datetime
+import shelve
+from rqalpha.const import FILEPATH
+import rqalpha.DBStock.mysqlResult as mysqlRS
 
 def singleton(cls):
     instances = {}
@@ -41,8 +44,11 @@ class MysqlCache():
         code = zz.getCode(rqcode)
         return self.getLastTickPrice(code, date, str_tick)
 
-
+    @lru_cache(1024 * 1024)
     def getLastTickPrice(self, code, date, str_tick):
+        if str_tick == '08:55:00ddd' or date == 'mysqltickcache.py  2019-06-11':#debug断点用
+            print(date)
+            pass#pass不能设断点
         str_tick_value = str_tick
         ticktime = datetime.datetime.strptime(str_tick_value, "%H:%M:%S")
         '''first_tick = datetime.datetime.strptime('9:30:00', "%H:%M:%S")
@@ -62,7 +68,7 @@ class MysqlCache():
         start_tick = datetime.datetime.strptime('9:29:59', "%H:%M:%S")
         end_tick = datetime.datetime.strptime('15:00:10', "%H:%M:%S")
         close_tick1 = datetime.datetime.strptime('15:00:06', "%H:%M:%S")
-        close_tick2 = datetime.datetime.strptime('9:25:10', "%H:%M:%S")
+        close_tick2 = datetime.datetime.strptime('9:25:30', "%H:%M:%S")
 
         if  ticktime >= end_tick:  #找到最后一个tick
             ticktime = close_tick1
@@ -82,7 +88,7 @@ class MysqlCache():
         saveticktime = ticktime
         price = self.getTickPrice(code, date, str_tick_value)
 
-        count = 15
+        count = 30
         while price is None:
             if count == 0: #控制循环次数
                 break
@@ -91,7 +97,7 @@ class MysqlCache():
             str_tick_value = ticktime.strftime("%H:%M:%S")
             price = self.getTickPrice(code, date, str_tick_value)
 
-        count = 15
+        count = 30
         while price is None:
             if count == 0:  # 控制循环次数
                 return None
@@ -128,25 +134,25 @@ class MysqlCache():
         return df
 
     def getdatafromshelve(self, code, date):
-        import shelve
+        #import shelve
         name = code + '_' + str(date)
-        print('shelve/TickData ', name)
-
-
+        dirstr = FILEPATH.SHELVEDIR.value
+        file = dirstr + 'TickData'
+        print(file, ' ', name)
         try:
-            shelveDict = shelve.open('shelve/TickData')
+            shelveDict = shelve.open(file)
         except Exception as e:
-            print('出错，没有文件shelve/TickData。现在立即新建，并重复执行')
+            print('出错，没有文件/volume/shelve/TickData。现在立即新建，并重复执行')
             import os
             os.makedirs('shelve')
-            shelveDict = shelve.open('shelve/TickData')
+            shelveDict = shelve.open(file)
 
         if name in shelveDict:
             listResult = shelveDict[name]
         else:
             # listResult = haveBeenGreaterThanbyOneDayCodelist(dateDay, percentage)
             import rqalpha.DBStock.dbQueryPools as dbpool
-            listResult =  dbpool.queryMySQL_tick_stock_market(code, date)
+            listResult = dbpool.queryMySQL_tick_stock_market(code, date)
             shelveDict[name] = listResult
         shelveDict.close()
         return listResult
@@ -167,14 +173,109 @@ class MysqlCache():
         #print(result)
         return data
 
+    def getHotStockTickByShelve(self, tick):
+        filename = 'HotStockTick'
+        from rqalpha.const import FILEPATH
+        dirstr = FILEPATH.SHELVEDIR.value
+
+        pathname = dirstr + filename
+        try:
+            shelveDict = shelve.open(pathname)
+        except Exception as e:
+            print('出错，没有文件%s。现在立即新建，并重复执行' % pathname)
+            import os
+            os.makedirs(pathname)
+            shelveDict = shelve.open(pathname)
+
+        DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
+        tickstr = tick.strftime(DATETIME_FORMAT)
+
+        if tickstr in shelveDict:
+            listResult = shelveDict[tickstr]
+        else:
+            listResult = self.getHotStockTick(tick)
+            shelveDict[tickstr] = listResult
+        shelveDict.close()
+        return listResult
+
+    def getHotStockTick(self, tick):
+
+        DATETIME_FORMAT = '%Y-%m-%d'
+        date = tick.strftime(DATETIME_FORMAT)  # 获得日期
+        DATETIME_FORMAT2 = '%H:%M:%S'
+        ticktime = tick.strftime(DATETIME_FORMAT2)
+
+        import MysqlTick.Loopback.scanZToneDay3 as scanzt
+        # date 日涨停的股票
+        listResult = scanzt.getGreaterThanList(date)
+        # listResult = getGreaterThanList(dateDay , percentage)
+        #print(listResult)
+        hotStockList = listResult
+
+        dictHotStock = {}
+        for code in hotStockList:  #
+            # context.tickbase('600016', '2019-07-25')
+            price = self.getTickPrice(code, date, ticktime)
+            if price is not None:
+                dictHotStock[code] = price
+        return dictHotStock
+
+    def getZhangtingStockListbytick(self, tick):
+        dictHotStock = self.getHotStockTickByShelve(tick)
+        DATETIME_FORMAT = '%Y-%m-%d'
+        date = tick.strftime(DATETIME_FORMAT)  # 获得日期
+        listZhangting = []
+        for code, price in dictHotStock.items():  #
+            todayData = mysqlRS.getDayMysqlResult(code, False, date, date)
+            import rqalpha.utilzld.zhangtingCalculation as ztprice
+            limitUpprice = ztprice.limitUp(todayData['lclose'].iloc[0])
+
+            print(code, price, limitUpprice)
+            if price == limitUpprice:
+                listZhangting.append(code)
+        return listZhangting
+
+    def getZhangtingStockListbytick_Shelve(self, tick):
+        filename = 'ZhongtingStockTick'
+        from rqalpha.const import FILEPATH
+        dirstr = FILEPATH.SHELVEDIR.value
+
+        pathname = dirstr + filename
+        try:
+            shelveDict = shelve.open(pathname)
+        except Exception as e:
+            print('出错，没有文件%s。现在立即新建，并重复执行' % pathname)
+            import os
+            os.makedirs(pathname)
+            shelveDict = shelve.open(pathname)
+
+        DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
+        tickstr = tick.strftime(DATETIME_FORMAT)
+
+        if tickstr in shelveDict:
+            listResult = shelveDict[tickstr]
+            print(pathname, ' ', tickstr)
+        else:
+            listResult = self.getZhangtingStockListbytick(tick)
+            shelveDict[tickstr] = listResult
+        shelveDict.close()
+        return listResult
+
 if __name__ =='__main__':
 
     # c1 = MyClass()
     # c2 = MyClass()
     # print(c1 == c2) # True
     tc = MysqlCache()
-    price = tc.getLastTickPrice('600016', '2019-06-06', '15:00:00')
-    print(price)
+    tickstr = '2019-06-03 09:30:07'
+    tick = datetime.datetime.strptime(tickstr, "%Y-%m-%d %H:%M:%S")
+    ps = tc.getHotStockTickByShelve(tick)
+    print(ps)
+
+    #tc.getZhangtingStockListbytick(tick)
+
+    #price = tc.getLastTickPrice('600016', '2019-06-06', '15:00:00')
+    #print(price)
     '''tc.getCacheData('000300', True, start ='2018-03-13', end = '2018-05-13')
     tc.getdatafromMysql('000300', True, start ='2018-03-13', end ='2018-05-13')
 
@@ -187,11 +288,11 @@ if __name__ =='__main__':
     tb = MysqlCache().getdatafromMysql('000300', True, start='2018-03-13', end='2018-05-13')
     print(tb)'''
 
-    pd = tc.getCacheData('600016', '2019-05-13')
-    print(pd)
+    #pd = tc.getCacheData('600016', '2019-05-13')
+    #print(pd)
 
-    price = tc.getTickPrice('600016', '2019-05-13', '09:25:05')
-    print(price)
+    #price = tc.getTickPrice('600016', '2019-05-13', '09:25:05')
+    #print(price)
 
 '''if __name__ == '__main__':
     ticktime = datetime.datetime.strptime('15:00:00', "%H:%M:%S")

@@ -3,6 +3,7 @@ import tushare as ts
 from rqalpha.environment import Environment
 from rqalpha.utils.py2 import lru_cache
 import pandas as pd
+from rqalpha.const import FILEPATH
 
 def singleton(cls):
     instances = {}
@@ -43,9 +44,12 @@ class MysqlCache():
 
     def getdatafromshelve(self, code, startdate, enddate):
         import shelve
+        dirstr = FILEPATH.SHELVEDIR.value
+        file = dirstr + 'DayData'
+
         name = code + '_' + str(startdate) + '_' + str(enddate)
-        print('shelve/DayData ', name)
-        shelveDict = shelve.open('shelve/DayData')
+        print(file, ' ', name)
+        shelveDict = shelve.open(file)
         if name in shelveDict:
             listResult = shelveDict[name]
         else:
@@ -69,10 +73,7 @@ class MysqlCache():
         enddata = enviroment.config.base.end_date
         #print(startdata)
         data = self.getdatafromMysql(code, index, startdata, enddata)
-        #print(data)
-        #startstr = start.strftime('%Y-%m-%d')
-        #endstr = end.strftime('%Y-%m-%d')
-        #result = data.loc[start:end,]
+
         result = data.loc[(data['date'] >= start) & (data['date'] <= end) ]
         #print(result)
         return result
