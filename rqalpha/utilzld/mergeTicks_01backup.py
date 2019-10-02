@@ -22,9 +22,6 @@ class MergeTicks():
     breakBeginTime = "11:30:05" #  中午休息
     breakEndTime = "13:00:00"
 
-    def getNextActiiveTick(self):
-        #Todo
-        pass
     def setBeginTime(self, beginTime):
         self.beginTime = beginTime
     def setEndTime(self, endTime):

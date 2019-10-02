@@ -168,7 +168,7 @@ class SimulationEventSource(AbstractEventSource):
             for day in data_proxy.get_trading_dates(start_date, end_date):
                 date = day.to_pydatetime()
                 last_tick = None
-                last_dt = None
+                #last_dt = None
                 dt_before_day_trading = date.replace(hour=8, minute=30)
                 while True:
                     #oneDayTicks = data_proxy.get_merge_ticks(self._get_universe(), date, last_dt)
@@ -179,7 +179,7 @@ class SimulationEventSource(AbstractEventSource):
                     while mt.hasNextTick(date):
                         #oneDayTicks = mt.getTicks(date)
                         tick = mt.getTicks(date)[0]
-                        print(tick)
+                        print('simulation_event_source ', tick)
                         mt.deleteOneTick(date, tick)
 
                     #for tick in oneDayTicks:
