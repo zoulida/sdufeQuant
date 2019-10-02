@@ -1,7 +1,8 @@
 __author__ = 'zoulida'
 __author__ = 'zoulida'
-import rqalpha.utilzld.secondsList as secondsList
+#import rqalpha.utilzld.secondsList as secondsList
 import datetime
+from rqalpha.utilzld.LinkList.LinkedListofTick import tickEliminateOrderedList as tickEliminateOrderedList
 
 
 def singleton(cls):
@@ -13,6 +14,18 @@ def singleton(cls):
     return getinstance
 
 @singleton
+class productTicks(): #每天一个MergeTicks
+    daysofMachine= {}
+    def getNextTick(self, trading_date_str):
+        if self.daysofMachine.get(trading_date_str) is not None:
+            return self.daysofMachine.get(trading_date_str).getNextTick()
+        else:
+            self.daysofMachine[trading_date_str] = MergeTicks(trading_date_str)
+            return self.daysofMachine[trading_date_str].getNextTick()
+
+    def addBreak(self, trading_date_str, startTickStr, endTickStr):
+        self.daysofMachine[trading_date_str].addBreak(startTickStr, endTickStr)
+
 class MergeTicks():
     daysofTick = {}
     beginTime = "09:25:00"  # 写到config
@@ -22,99 +35,64 @@ class MergeTicks():
     breakBeginTime = "11:30:05" #  中午休息
     breakEndTime = "13:00:00"
 
-    def getNextActiiveTick(self):
-        #Todo
-        pass
-    def setBeginTime(self, beginTime):
-        self.beginTime = beginTime
-    def setEndTime(self, endTime):
-        self.endTime = endTime
-    def getDatString(self, trading_date):
-        data1str = trading_date.strftime("%Y-%m-%d")
-        return data1str
+    def __init__(self, trading_date_str):
+        self.trading_date_str = trading_date_str
 
-    def munisTicks(self, trading_date_str, elTicks):
+        self.nextTick = self.beginTime
 
-        ticks = self.getTicksbyStrDay(trading_date_str)
+        self.teol = tickEliminateOrderedList() #采用有序链接表存储tick间断情况，若为1，则后续tick都要输出执行；若为0，则表示删除后续tick，直到遇到1时，再次输出后续tick。
+        self.teol.add(self.beginTime, 1)
+        self.teol.add(self.endTime, 0)
+        self.teol.add(self.breakBeginTime, 0)
+        self.teol.add(self.breakEndTime, 1)
+        self.stopTick = self.teol.getNextDeactiovTick()
 
-        list = [i for i in ticks if i not in elTicks]
-        self.daysofTick[trading_date_str] = list
 
-    def getTicksbyStrDay(self, trading_date_str):
-        if self.daysofTick.get(trading_date_str) is not None:
-            return self.daysofTick.get(trading_date_str)
+    def getNextTick(self):
+        if self.nextTick == None or self.stopTick == None:
+            return None
+        if self.nextTick <= self.stopTick:
+            tickstr = self.trading_date_str + " " + self.nextTick
+            tick = datetime.datetime.strptime(tickstr, "%Y-%m-%d %H:%M:%S")
+            nextTickFormat = tick + datetime.timedelta(seconds=1)
+            self.nextTick = nextTickFormat.strftime("%H:%M:%S")
+            return tick
         else:
-            self.daysofTick[trading_date_str] = self.get_merge_ticks(trading_date_str)
-            return self.daysofTick[trading_date_str]
+            self.nextTick = self.teol.getNextActiveTick()
+            self.stopTick = self.teol.getNextDeactiovTick()
+            if self.stopTick == None:
+                return None
+            else:
+                return self.getNextTick()
 
-    def getTicks(self, trading_date):
-        trading_date_str = trading_date.strftime("%Y-%m-%d")
-        return self.getTicksbyStrDay(trading_date_str)
+    def addBreak(self, startTickStr, endTickStr):#输入中断信息。查询时，只需找到下一个key为1的tick就行，不管后续有几个0.
+        beginDateSecond = datetime.datetime.strptime(startTickStr, "%H:%M:%S")
+        #endDateSecond = datetime.datetime.strptime(endTickStr, "%H:%M:%S")
+        beginDateSecond = beginDateSecond + datetime.timedelta(seconds=2)  # zoulida 增加一秒处理订单
 
-    def deleteOneTick(self, trading_date, tick):
-        trading_date_str = trading_date.strftime("%Y-%m-%d")
-        ticks = self.getTicksbyStrDay(trading_date_str)
-        ticks.remove(tick)
-        self.daysofTick[trading_date_str] = ticks
+        beginDateSecondStr = beginDateSecond.strftime("%H:%M:%S")
+        if self.stopTick > beginDateSecondStr:
+            self.stopTick = beginDateSecond.strftime("%H:%M:%S")
 
-    def hasNextTick(self, trading_date):
-        ticks = self.getTicks(trading_date)
-        if len(ticks) > 0:
-            return True
-        else:
-            return False
-
-
-
-
-    def get_merge_ticks(self, trading_date_str):
-
-        from rqalpha.utilzld.secondsList import dateSecondRangeByDatatime
-
-        #data1str = trading_date.strftime("%Y-%m-%d")
-
-        dataBeginTimestr = trading_date_str + " " + self.beginTime
-        dataEndTimestr = trading_date_str + " " + self.endTime
-        breakBeginTimestr = trading_date_str + " " + self.breakBeginTime
-        breakEndTimestr = trading_date_str + " " + self.breakEndTime
-        #import datetime
-        dataBeginTime = datetime.datetime.strptime(dataBeginTimestr, "%Y-%m-%d %H:%M:%S")
-        breakBeginTime = datetime.datetime.strptime(breakBeginTimestr, "%Y-%m-%d %H:%M:%S")
-        listTicksMorning = dateSecondRangeByDatatime(dataBeginTime, breakBeginTime)
-
-        dataEndTime = datetime.datetime.strptime(dataEndTimestr, "%Y-%m-%d %H:%M:%S")
-        breakEndTime = datetime.datetime.strptime(breakEndTimestr, "%Y-%m-%d %H:%M:%S")
-        listTicksafternoon = dateSecondRangeByDatatime(breakEndTime, dataEndTime)
-
-        listTicks = listTicksMorning + listTicksafternoon
-        #print(listTicks)
-        return listTicks
-        # print(listTicks)
-
+        #self.teol.add(startTickStr, 0)
+        #self.teol.add(endTickStr, 1)
+        self.teol.addBreak(startTickStr, endTickStr)
 
 
 if __name__ == '__main__':
-    s_date = datetime.datetime.strptime("2016-06-07", "%Y-%m-%d")
-    mt = MergeTicks()
-    ticks = mt.getTicksbyStrDay("2016-06-07")
-    #print(ticks)
+    pt = productTicks()
+    tick = pt.getNextTick('2019-08-08')
+    print(tick)
 
-    import rqalpha.utilzld.eliminateTicks as et
-    el = et.ELiminateTicks()
-    el.addTicksbyString('2016-06-07 14:51:00', '2016-06-07 14:59:00')
-    elticks = el.getELTicks()
-    #print(el.getELTicks())
+    tick = pt.getNextTick('2019-08-08')
+    print(tick)
 
-    import time
-    start = time.time()
-    mt.munisTicks("2016-06-07", elticks)
-    ticks2 = mt.getTicksbyStrDay("2016-06-07")
-    stop = time.time()
-    print('delay: %.3fs' % (stop - start))
+    pt.addBreak('2019-08-08', '10:30:05', '14:30:05')
 
+    while tick is not None:
+        print(tick)
+        tick = pt.getNextTick('2019-08-08')
 
-    print(ticks2)
-
-    '''el = ELiminateTicks()
-    el.addTicksbyString('2019-08-08 14:51:00', '2019-08-08 14:52:00')
-    print(el.getELTicks())'''
+        debugtick =  datetime.datetime.strptime('2019-08-08 11:30:05', "%Y-%m-%d %H:%M:%S")
+        if tick == debugtick:
+            print(' tttttttttttttttttt ', tick)

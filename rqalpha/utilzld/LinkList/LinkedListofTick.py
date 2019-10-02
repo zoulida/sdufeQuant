@@ -61,6 +61,9 @@ class orderedList:#有序
         else:
             temp.set_next(current)
             previous.set_next(temp)
+        return temp
+
+
 
     def remove(self, item):
         current = self.head
@@ -139,6 +142,16 @@ class tickEliminateOrderedList(orderedList):
     def __init__(self):
         super(tickEliminateOrderedList, self).__init__()
         self.add('00:00:01', 0) #生成一个假头
+
+    def addBreak(self, startTickStr, endTickStr):
+        node1 = self.add(startTickStr, 0)
+        node2 = self.add(endTickStr, 1)
+        if self.cursor.get_key() > node1.get_key():
+            self.cursor = node1
+            self.connect(node1, node2)
+
+    def connect(self, node1, node2):
+        node1.set_next(node2)
 
     #self.cursor = None
     def getNextActiveTick(self):
