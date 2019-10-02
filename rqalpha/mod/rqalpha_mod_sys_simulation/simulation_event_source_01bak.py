@@ -173,10 +173,12 @@ class SimulationEventSource(AbstractEventSource):
                 while True:
                     #oneDayTicks = data_proxy.get_merge_ticks(self._get_universe(), date, last_dt)
                     import rqalpha.utilzld.mergeTicks as MT
-                    pt = MT.productTicks()
-                    trading_date_str = date.strftime("%Y-%m-%d")
-                    tick = pt.getNextTick(trading_date_str)
-                    while tick is not None:
+                    mt = MT.MergeTicks()
+
+                    while mt.hasNextTick(date):
+                        tick = mt.getTicks(date)[0]
+                        print('simulation_event_source ', tick)
+                        mt.deleteOneTick(date, tick)
 
                         calendar_dt = tick
                         if calendar_dt < dt_before_day_trading:
@@ -199,7 +201,7 @@ class SimulationEventSource(AbstractEventSource):
 
                         #last_dt = calendar_dt
                         yield Event(EVENT.TICK, calendar_dt=calendar_dt, trading_dt=trading_dt, tick=tick)
-                        tick = pt.getNextTick(trading_date_str)
+
                     else:
                         break
 

@@ -1,10 +1,10 @@
 from rqalpha.api import *
-#import time
+import time
 import datetime
 import MysqlTick.Loopback.mysqlTickCache as tickCache
-#import rqalpha.DBStock.mysqlResult as mysqlRS
+import rqalpha.DBStock.mysqlResult as mysqlRS
 from rqalpha.const import DEFAULT_ACCOUNT_TYPE
-import rqalpha.utilzld.mergeTicks as MT
+
 import rqalpha.utilzld.codeStrChange as codeStrChange
 codeChange = codeStrChange.CodeChange()
 
@@ -18,8 +18,6 @@ def init(context):
     # 是否已发送了order
     context.todayFired = False
     context.tickbase = tickCache.MysqlCache()
-    #context.productTicks = MT.productTicks()
-
 
     global timeBeginStrategy
     timeBeginStrategy = datetime.datetime.now()
@@ -59,9 +57,18 @@ def handle_tick(context, tick):
         print(listResult)
         context.hotStockList = listResult
 
-        # 去掉 9点25分到9点29分的tick
-        pt = MT.productTicks()
-        pt.addBreak(date, '09:25:00', '09:29:59')
+
+        #去掉 9点25分到9点29分的tick
+        import rqalpha.utilzld.eliminateTicks as ET
+        el = ET.ELiminateTicks()
+        beginTick = date + ' ' + '09:25:00'
+        endTick = date + ' ' + '09:29:59'
+        el.addTicksbyString(beginTick, endTick)
+        elticks = el.getELTicks()
+        import rqalpha.utilzld.mergeTicks as MT
+        mt = MT.MergeTicks()
+        mt.munisTicks(date, elticks)
+        #print(mt.getTicksbyStrDay(date))
 
         return
 
@@ -110,15 +117,49 @@ def handle_tick(context, tick):
         eliminteTicks(date, ticktime)  ## 去掉当天 所有后续时间的tick
         return
 
+    '''for code in context.hotStockList:#
+        #context.tickbase('600016', '2019-07-25')
+        price = context.tickbase.getTickPrice(code, date, ticktime)
+        if price is not None:#并不是每个股票每个tick秒都有数据
+            #print(price)
+            todayData = mysqlRS.getDayMysqlResult(code, False, date, date)
+
+            import rqalpha.utilzld.zhangtingCalculation as ztprice
+
+            limitUpprice = ztprice.limitUp(todayData['lclose'].iloc[0])
+            #print(price, limitUpprice)
+            if price == limitUpprice:
+                print(todayData)
+                print('buybuybuy!!!!!!!!!!!!!!!')
+
+                riceCode = codeChange.getRiceCode(code)
+                order_percent(riceCode, 1)
+                context.todayFired = True
+                #context.todayBuy[riceCode] = 0
+
+
+                #time.sleep(3)
+
+
+                eliminteTicks(date, ticktime) ## 去掉当天 所有后续时间的tick
+                #eliminteTicks(date, ticktime)
+
+
+                return'''
+
+
 
 def eliminteTicks(date, ticktime):
     # 去掉当天 所有后续时间的tick
-    endTick = '15:00:30'
+    import rqalpha.utilzld.eliminateTicks as ET
+    el = ET.ELiminateTicks()
+    beginTick = date + ' ' + ticktime
+    endTick = date + ' ' + '15:00:30'
+    el.addTicksbyString(beginTick, endTick)
     import rqalpha.utilzld.mergeTicks as MT
-    pt = MT.productTicks()
-    pt.addBreak(date, ticktime, endTick)
-
-
+    mt = MT.MergeTicks()
+    elticks = el.getELTicks()
+    mt.munisTicks(date, elticks)
 
 
 
@@ -137,7 +178,7 @@ def handle_bar(context, bar_dict):
     logger.info(bar_dict[context.cc])
     logger.info(bar_dict[context.s1])
 
-    # TODO: 开始编写你的算法吧！
+    # 
     if not context.fired:
         # order_percent并且传入1代表买入该股票并且使其占有投资组合的100%
         order_percent(context.s1, 1)
