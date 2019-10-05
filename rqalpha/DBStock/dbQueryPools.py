@@ -63,7 +63,7 @@ def queryMySQL_getLast(code1):#使用连接池
         conn.rollback() # 出现异常 回滚事件
         print("Error: Function happen Error: test()")
     finally:
-        print("释放资源，数据库连接池")
+        print("释放资源，数据库连接池1")
         cur.close()
         conn.close()
         #查询表结构语句为desc stock_000016
@@ -93,7 +93,7 @@ def getIndexByDate(code1, startdate = '2017-12-09', enddate = '2018-12-09'):  #�
         conn.rollback() # 出现异常 回滚事件
         print("Error: Function happen Error: test()")
     finally:
-        print("释放资源，数据库连接池")
+        print("释放资源，数据库连接池2")
         cur.close()
         conn.close()
         #查询表结构语句为desc stock_000016
@@ -123,7 +123,7 @@ def queryMySQL_plot_stock_market(code1, startdate = '2017-12-09', enddate = '201
         conn.rollback() # 出现异常 回滚事件
         print("Error: Function happen Error: test()")
     finally:
-        print("释放资源，数据库连接池")
+        print("释放资源，数据库连接池3")
         cur.close()
         conn.close()
         #查询表结构语句为desc stock_000016
@@ -155,7 +155,7 @@ def queryMySQL_tick_stock_market(code1, date = '2017-12-09'):#使用连接池
         conn.rollback() # 出现异常 回滚事件
         print("Error: Function happen Error: test()", IOError)
     finally:
-        print("释放资源，数据库连接池")
+        print("释放资源，数据库连接池4")
         cur.close()
         conn.close()
         #查询表结构语句为desc stock_000016

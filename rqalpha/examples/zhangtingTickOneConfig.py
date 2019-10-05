@@ -1,5 +1,6 @@
 __author__ = 'zoulida'
 from rqalpha import run
+from guppy import hpy
 
 def init():
 
@@ -13,8 +14,8 @@ def init():
 config = {
     "base": {
         "strategy_file": "zhangtingTickOneStrategy.py",#"examples/buy_and_hold_Tick.py"""./examples/buy_and_hold.py",examples/golden_cross.py
-        "start_date": "2019-06-03",
-        "end_date": "2019-07-04",
+        "start_date": "2019-04-11",
+        "end_date": "2019-04-12",
         "frequency": "tick",
         "accounts": {
             "stock": 100000
@@ -51,4 +52,14 @@ config = {
     }
 }
 #init()
-run(config)
+
+from memory_profiler import profile
+@profile
+def startRun():
+    run(config)
+
+
+if __name__ == '__main__':
+    startRun()
+#mem = hpy()
+#print(mem.heap())

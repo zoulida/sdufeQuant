@@ -25,7 +25,7 @@ class MyClass:
 @singleton
 class MysqlCache():
 
-    @lru_cache(None)
+    @lru_cache(1024 * 1024 *10)
     def getdatafromMysql(self, code, index, start, end):
         startstr = start.strftime('%Y-%m-%d')
         endstr = end.strftime('%Y-%m-%d')

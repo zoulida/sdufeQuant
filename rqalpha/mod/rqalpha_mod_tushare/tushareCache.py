@@ -24,7 +24,7 @@ class MyClass:
 @singleton
 class TushareCache():
 
-    @lru_cache(None)
+    @lru_cache(1024 * 1024 *48)
     def getdatafromTushare(self, code, index, start, end):
         startstr = start.strftime('%Y-%m-%d')
         endstr = end.strftime('%Y-%m-%d')
