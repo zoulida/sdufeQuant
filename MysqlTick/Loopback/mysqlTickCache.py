@@ -46,7 +46,7 @@ class MysqlCache():
 
     @lru_cache(1024 * 1024)
     def getLastTickPrice(self, code, date, str_tick):
-        if str_tick == '08:55:00ddd' or date == 'mysqltickcache.py  2019-06-11':#debug断点用
+        if str_tick == '15:30:00' and date == '2019-04-09':#debug断点用
             print(date)
             pass#pass不能设断点
         str_tick_value = str_tick
@@ -72,6 +72,7 @@ class MysqlCache():
 
         if  ticktime >= end_tick:  #找到最后一个tick
             ticktime = close_tick1
+            close_flag = True #表示求收盘价
             str_tick_value = ticktime.strftime("%H:%M:%S")
         if ticktime <= start_tick: #找到第一个tick
             ticktime = close_tick2
@@ -100,13 +101,15 @@ class MysqlCache():
         count = 30
         while price is None:
             if count == 0:  # 控制循环次数
-                return None
+                break
             count = count - 1
             saveticktime = saveticktime + datetime.timedelta(seconds=1)  # 时间增加一秒,zoulida
             str_tick_value = saveticktime.strftime("%H:%M:%S")
             price = self.getTickPrice(code, date, str_tick_value)
 
             #print(str_tick)
+        if price is None and close_flag is True: #15：00：00附近找不到值，继续往前找
+            return self.getLastTickPrice(code, date, '14:57:00')
         return price
 
     def getTickPrice(self, code, date, tick):

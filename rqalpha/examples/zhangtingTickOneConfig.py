@@ -2,6 +2,8 @@ __author__ = 'zoulida'
 from rqalpha import run
 from guppy import hpy
 
+
+
 def init():
 
     import os
@@ -14,8 +16,8 @@ def init():
 config = {
     "base": {
         "strategy_file": "zhangtingTickOneStrategy.py",#"examples/buy_and_hold_Tick.py"""./examples/buy_and_hold.py",examples/golden_cross.py
-        "start_date": "2019-04-11",
-        "end_date": "2019-04-12",
+        "start_date": "2019-04-09",
+        "end_date": "2019-04-09",
         "frequency": "tick",
         "accounts": {
             "stock": 100000
@@ -54,9 +56,21 @@ config = {
 #init()
 
 from memory_profiler import profile
+import objgraph
 @profile
 def startRun():
+    objgraph.show_growth()
     run(config)
+    objgraph.show_growth()
+
+    #objgraph.show_backrefs(objgraph.by_type('MysqlCache')[0], max_depth=10, filename='obj3.dot')
+    objgraph.show_chain(
+        objgraph.find_backref_chain(
+            objgraph.by_type('MysqlCache')[0],
+            objgraph.is_proper_module
+        ),
+        filename='obj_chain.dot'
+    )
 
 
 if __name__ == '__main__':
