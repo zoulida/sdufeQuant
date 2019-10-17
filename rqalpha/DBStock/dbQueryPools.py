@@ -2,6 +2,7 @@ __author__ = 'zoulida'
 import pymysql
 import pandas as pd
 from DBUtils.PooledDB import PooledDB
+from memory_profiler import profile
 
 
 # 数据库名称和密码
@@ -129,6 +130,7 @@ def queryMySQL_plot_stock_market(code1, startdate = '2017-12-09', enddate = '201
         #查询表结构语句为desc stock_000016
         return  df
 
+#@profile
 def queryMySQL_tick_stock_market(code1, date = '2017-12-09'):#使用连接池
     #if code1 == '000300':#如果是指数，如果沪深300.
     #    return getIndexByDate(code1, startdate, enddate)
@@ -158,6 +160,11 @@ def queryMySQL_tick_stock_market(code1, date = '2017-12-09'):#使用连接池
         print("释放资源，数据库连接池4")
         cur.close()
         conn.close()
+
+        #del cur
+        #import gc
+        #gc.collect()
+
         #查询表结构语句为desc stock_000016
 
         return  dfd

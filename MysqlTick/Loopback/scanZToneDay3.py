@@ -7,6 +7,7 @@ from santai3.tools.tusharePro import getPro
 from santai3.tools.LogTools import Logger
 from rqalpha.utils.py2 import lru_cache
 import time
+from memory_profiler import profile
 logger = Logger(logName='log.txt', logLevel="DEBUG", logger="santai3").getlog()
 #from tools.connectMySQL import getStockDataBaseCursorAndDB
 
@@ -17,8 +18,8 @@ def getZTList(codelist, dateDay):
     #if haveBeenGreaterThanbyOneDay(codelist, dateDay):
     #    listA.append(code)
 
-@lru_cache(maxsize=16 * 1024 * 1024)
-def getGreaterThanList(dateDay, percentage = 1.07):#取得最高价大于percentage的list
+@lru_cache(maxsize=5)
+def getGreaterThanList(dateDay, percentage = 1.08):#取得最高价大于percentage的list
 
     import shelve
     name = dateDay + '_' +str(percentage)
@@ -49,6 +50,7 @@ def addList(res_l):
             import traceback
             traceback.print_exc()
 
+@profile
 def haveBeenGreaterThanbyOneDayRemoveOpenLimitUp_Codelist(dateDay ,percentage):#涨停股票，去除一字涨停
     import santai3.tools.connectMySQL as CL
     cursor, db = CL.getStockDataBaseCursorAndDB()
@@ -91,6 +93,7 @@ def haveBeenGreaterThanbyOneDayRemoveOpenLimitUp_Codelist(dateDay ,percentage):#
         db.commit()
         db.close()
     return listResult
+
 def haveBeenGreaterThanbyOneDayCodelist(dateDay ,percentage):
     import santai3.tools.connectMySQL as CL
     cursor, db = CL.getStockDataBaseCursorAndDB()
@@ -151,6 +154,7 @@ def haveBeenGreaterThanbyOneDay(code, dateDay ,percentage):
         db.close()
     return False
 
+@lru_cache(maxsize=1)
 def getStockList():
     from santai3.tools.StockList import get_all_stock2
     codelist = get_all_stock2()

@@ -17,6 +17,7 @@
 from rqalpha.environment import Environment
 from rqalpha.events import EVENT
 from rqalpha.utils import is_valid_price
+from memory_profiler import profile
 
 from .stock_account import StockAccount
 
@@ -45,6 +46,7 @@ class BenchmarkAccount(StockAccount):
             position._avg_price = price
             self._total_cash -= quantity * price
 
+    @profile
     def _on_tick(self, event):
         #self._total_cash = 1000
         #run once

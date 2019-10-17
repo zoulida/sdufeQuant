@@ -7,6 +7,7 @@ from rqalpha.const import DEFAULT_ACCOUNT_TYPE
 import rqalpha.utilzld.mergeTicks as MT
 import rqalpha.utilzld.codeStrChange as codeStrChange
 codeChange = codeStrChange.CodeChange()
+from memory_profiler import profile
 
 # 在这个方法中编写任何的初始化逻辑。context对象将会在你的算法策略的任何方法之间做传递。
 def init(context):
@@ -38,7 +39,7 @@ def after_trading(context):
     print('strategyTime is ', strategyTime)
     pass
 
-
+@profile
 #1.全仓买入第一个涨停的。2.第2天开盘价卖出
 def handle_tick(context, tick):
     logger.info("每一个Tick执行")
@@ -51,13 +52,17 @@ def handle_tick(context, tick):
     ticktime = tick.strftime(DATETIME_FORMAT2)
     if ticktime ==  '09:25:00':#每天这个时间要做数据准备工作
         print(ticktime)
-        import MysqlTick.Loopback.scanZToneDay3 as scanzt
+        '''import MysqlTick.Loopback.scanZToneDay3 as scanzt
 
-        #date 日涨停的股票
+        #今日涨停的股票
         listResult = scanzt.getGreaterThanList(date)
         # listResult = getGreaterThanList(dateDay , percentage)
-        print(listResult)
-        context.hotStockList = listResult
+        #print(listResult)
+
+        import gc
+        gc.collect()
+
+        context.hotStockList = listResult'''
 
         # 去掉 9点25分到9点29分的tick
         pt = MT.productTicks()

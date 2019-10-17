@@ -57,7 +57,7 @@ class TradingDatesMixin(object):
         pos = self._dates.searchsorted(date)
         return pos < len(self._dates) and self._dates[pos] == date
 
-    @lru_cache(512)
+    @lru_cache(maxsize = 512)
     def _get_future_trading_date(self, dt):
         dt1 = dt - datetime.timedelta(hours=4)
         td = pd.Timestamp(dt1.date())

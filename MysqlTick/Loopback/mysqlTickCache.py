@@ -7,6 +7,7 @@ import datetime
 import shelve
 from rqalpha.const import FILEPATH
 import rqalpha.DBStock.mysqlResult as mysqlRS
+from memory_profiler import profile
 
 def singleton(cls):
     instances = {}
@@ -29,6 +30,7 @@ class MyClass:
 @singleton
 class MysqlCache():
 
+    @profile
     def getLastTickPriceByEnvironment(self, rqcode):
         calendar_dt = Environment._env.calendar_dt
         date = calendar_dt.strftime("%Y-%m-%d")
@@ -44,10 +46,11 @@ class MysqlCache():
         code = zz.getCode(rqcode)
         return self.getLastTickPrice(code, date, str_tick)
 
-    @lru_cache(1024 * 1024)
+    #@profile
+    @lru_cache(maxsize = 5)
     def getLastTickPrice(self, code, date, str_tick):
         if str_tick == '15:30:00' and date == '2019-04-09':#debug断点用
-            print(date)
+            print('debug断点用', date)
             pass#pass不能设断点
         str_tick_value = str_tick
         ticktime = datetime.datetime.strptime(str_tick_value, "%H:%M:%S")
@@ -112,17 +115,23 @@ class MysqlCache():
             return self.getLastTickPrice(code, date, '14:57:00')
         return price
 
+    #@profile
     def getTickPrice(self, code, date, tick):
         records = self.getCacheData(code, date)
         #print(records['tick_time'] )
         recordone = records[records['tick_time'] == tick ]
+        del records
+        import gc
+        gc.collect()
+
         if recordone.empty :
             return None
         #print(recordone.iloc[0,5])
         return recordone.iloc[0,5]
         pass
 
-    @lru_cache(maxsize = 16 * 1024 * 1024)
+    #@profile
+    @lru_cache(maxsize = 300)
     def getdatafromMysql(self, code, date):#获取某一天的tick数据，并缓存在内存
 
         df = self.getdatafromshelve(code, date)
@@ -136,6 +145,7 @@ class MysqlCache():
 
         return df
 
+    #@profile
     def getdatafromshelve(self, code, date):
         #import shelve
         name = code + '_' + str(date)
@@ -152,12 +162,20 @@ class MysqlCache():
 
         if name in shelveDict:
             listResult = shelveDict[name]
+            #print(listResult)
         else:
             # listResult = haveBeenGreaterThanbyOneDayCodelist(dateDay, percentage)
             import rqalpha.DBStock.dbQueryPools as dbpool
             listResult = dbpool.queryMySQL_tick_stock_market(code, date)
             shelveDict[name] = listResult
         shelveDict.close()
+
+
+        del shelveDict
+        #del listResult
+        import gc
+        gc.collect()#
+
         return listResult
 
     def getCacheData(self, code, date):
@@ -264,16 +282,25 @@ class MysqlCache():
         shelveDict.close()
         return listResult
 
+    @profile
+    def test(self):
+        tc = MysqlCache()
+        tc.getdatafromshelve('600016', '2019-05-15')
+        #print(pd)
+        #del pd
+        print('ok')
+
+
 if __name__ =='__main__':
 
     # c1 = MyClass()
     # c2 = MyClass()
     # print(c1 == c2) # True
     tc = MysqlCache()
-    tickstr = '2019-06-03 09:30:07'
-    tick = datetime.datetime.strptime(tickstr, "%Y-%m-%d %H:%M:%S")
-    ps = tc.getHotStockTickByShelve(tick)
-    print(ps)
+    #tickstr = '2019-06-03 09:30:07'
+    #tick = datetime.datetime.strptime(tickstr, "%Y-%m-%d %H:%M:%S")
+    #ps = tc.getHotStockTickByShelve(tick)
+    #print(ps)
 
     #tc.getZhangtingStockListbytick(tick)
 
@@ -293,6 +320,8 @@ if __name__ =='__main__':
 
     #pd = tc.getCacheData('600016', '2019-05-13')
     #print(pd)
+    tc.test()
+
 
     #price = tc.getTickPrice('600016', '2019-05-13', '09:25:05')
     #print(price)
