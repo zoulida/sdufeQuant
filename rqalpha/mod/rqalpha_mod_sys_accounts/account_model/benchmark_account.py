@@ -46,7 +46,7 @@ class BenchmarkAccount(StockAccount):
             position._avg_price = price
             self._total_cash -= quantity * price
 
-    @profile
+    #@profile
     def _on_tick(self, event):
         #self._total_cash = 1000
         #run once

@@ -30,7 +30,7 @@ class MyClass:
 @singleton
 class MysqlCache():
 
-    @profile
+    #@profile
     def getLastTickPriceByEnvironment(self, rqcode):
         calendar_dt = Environment._env.calendar_dt
         date = calendar_dt.strftime("%Y-%m-%d")
